@@ -85,7 +85,7 @@ public class ClienteControle {
 		return new ResponseEntity<>(status);
 	}
 
-	@DeleteMapping("/cliente/excluir")
+	@DeleteMapping("/excluir/cliente")
 	public ResponseEntity<?> excluirCliente(@RequestBody Cliente exclusao) {
 		HttpStatus status = HttpStatus.BAD_REQUEST;
 		Cliente cliente = repositorio.getById(exclusao.getId());

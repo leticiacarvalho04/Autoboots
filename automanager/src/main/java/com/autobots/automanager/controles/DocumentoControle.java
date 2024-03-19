@@ -39,7 +39,6 @@ public class DocumentoControle {
 			status = HttpStatus.CREATED;
 		}
 		return new ResponseEntity<>(status);
-
 	}
 	
 	// listagem dos documentos
