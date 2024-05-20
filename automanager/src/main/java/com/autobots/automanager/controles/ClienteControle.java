@@ -1,61 +1,93 @@
 package com.autobots.automanager.controles;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Documento;
+import com.autobots.automanager.entidades.Endereco;
+import com.autobots.automanager.entidades.Telefone;
+import com.autobots.automanager.repositorios.DocumentoRepositorio;
+import com.autobots.automanager.repositorios.EnderecoRepositorio;
+import com.autobots.automanager.repositorios.TelefoneRepositorio;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import com.autobots.automanager.dto.ClienteDto;
+import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.modelo.ClienteAtualizador;
 import com.autobots.automanager.modelo.ClienteSelecionador;
 import com.autobots.automanager.repositorios.ClienteRepositorio;
-import com.autobots.automanager.repositorios.DocumentoRepositorio;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
+@RequestMapping("/clientes")
 public class ClienteControle {
 	
 	@Autowired
 	private ClienteRepositorio repositorio;
 	
 	@Autowired
+	private DocumentoRepositorio documentoRepositorio;
+	
+	@Autowired
+	private EnderecoRepositorio enderecoRepositorio;
+	
+	@Autowired
+	private TelefoneRepositorio telefoneRepositorio;
+	
+	@Autowired
 	private ClienteSelecionador selecionador;
-
-	@GetMapping("/cliente/{id}")
+	
+	@GetMapping("/{id}")
 	public Cliente obterCliente(@PathVariable long id) {
 		List<Cliente> clientes = repositorio.findAll();
-		return selecionador.selecionar(clientes, id);
+		Cliente cliente = selecionador.selecionar(clientes, id);
+		return cliente ;
 	}
-
-	@GetMapping("/clientes")
+	
+	@GetMapping
 	public List<Cliente> obterClientes() {
 		List<Cliente> clientes = repositorio.findAll();
 		return clientes;
 	}
-
+	
 	@PostMapping("/cadastro")
-	public void cadastrarCliente(@RequestBody Cliente cliente) {
+	public void cadastrarCliente(@RequestBody ClienteDto clienteDto) {
+		List<Documento> documentos = documentoRepositorio.findAllById(clienteDto.getDocumentos());
+		Endereco endereco = enderecoRepositorio.findById(clienteDto.getEndereco()).orElse(null);
+		List<Telefone> telefones = telefoneRepositorio.findAllById(clienteDto.getTelefones());
+		
+		Cliente cliente = clienteDto.toEntity(documentos, endereco, telefones);
+		cliente.setDocumentos(documentos);
+		cliente.setEndereco(endereco);
+		cliente.setTelefones(telefones);
 		repositorio.save(cliente);
 	}
-
+	
 	@PutMapping("/atualizar")
-	public void atualizarCliente(@RequestBody Cliente atualizacao) {
-		Cliente cliente = repositorio.getById(atualizacao.getId());
+	public void atualizarCliente(@RequestBody ClienteDto clienteDto) {
+		Optional<Cliente> optionalCliente = repositorio.findById(clienteDto.getId());
+		if (!optionalCliente.isPresent()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente not found");
+		}
+		Cliente cliente = optionalCliente.get();
+		
+		List<Documento> documentos = documentoRepositorio.findAllById(clienteDto.getDocumentos());
+		Endereco endereco = enderecoRepositorio.findById(clienteDto.getEndereco()).orElse(null);
+		List<Telefone> telefones = telefoneRepositorio.findAllById(clienteDto.getTelefones());
+		
 		ClienteAtualizador atualizador = new ClienteAtualizador();
-		atualizador.atualizar(cliente, atualizacao);
+		Cliente clienteAtualizado = clienteDto.toEntity(documentos, endereco, telefones);
+		atualizador.atualizar(cliente, clienteAtualizado);
+		
 		repositorio.save(cliente);
 	}
-
+	
 	@DeleteMapping("/excluir")
-	public void excluirCliente(@RequestBody Cliente exclusao) {
-		Cliente cliente = repositorio.getById(exclusao.getId());
+	public void excluirCliente(@RequestBody ClienteDto clienteDto) {
+		Cliente cliente = repositorio.getById(clienteDto.getId());
 		repositorio.delete(cliente);
 	}
 	
