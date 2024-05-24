@@ -1,7 +1,6 @@
-package com.autobots.automanager.modelo.atualizadores;
+package com.autobots.automanager.modelo;
 
 import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.modelo.StringVerificadorNulo;
 
 public class EnderecoAtualizador {
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();

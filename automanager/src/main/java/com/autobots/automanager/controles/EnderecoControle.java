@@ -2,62 +2,50 @@ package com.autobots.automanager.controles;
 
 import java.util.List;
 
-import com.autobots.automanager.entidades.Empresa;
-import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEndereco;
-import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.modelo.atualizadores.EnderecoAtualizador;
+import com.autobots.automanager.modelo.EnderecoAtualizador;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
-@RequestMapping("/endereco")
 public class EnderecoControle {
 
 	@Autowired
 	public EnderecoRepositorio repositorio;
 	
-	@Autowired
-	public AdicionadorLinkEndereco adicionadorLink;
-	
-	@Autowired
-	public EmpresaRepositorio empresaRepositorio;
-	
-	@PostMapping("/cadastro")
+	// cadastrar endereço
+	@PostMapping("/cadastro/endereco")
 	public void cadastrarEndereco(@RequestBody Endereco endereco) {
-		adicionadorLink.adicionarLink(endereco);
 		repositorio.save(endereco);
 	}
-
-	@GetMapping
-	public List<Endereco> obterEndereco(){
-		List<Endereco> enderecos = repositorio.findAll();
-		adicionadorLink.adicionarLink(enderecos);
-		return enderecos;
+	
+	// listar endereços
+	@GetMapping("/enderecos")
+	public List<Endereco> listar(){
+		return repositorio.findAll();
 	}
-
-	@PutMapping("/atualizar")
+	
+	//editar endereços
+	@PutMapping("/editar/endereco")
 	public void atualizarEndereco(@RequestBody Endereco e) {
 		Endereco endereco = repositorio.getById(e.getId());
 		EnderecoAtualizador atualizador = new EnderecoAtualizador();
 		atualizador.atualizar(endereco, e);
 		repositorio.save(endereco);
 	}
-
-	@DeleteMapping("/excluir/{id}")
-	public void excluirCliente(@PathVariable Long id) {
-		Endereco endereco = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		List<Empresa> empresas = empresaRepositorio.findAll();
-		for(Empresa e : empresas){
-			if(e.getEndereco().getId().equals(endereco.getId())){
-                e.setEndereco(null);
-                empresaRepositorio.save(e);
-            }
-		}
+	
+	// excluir endereço
+	@DeleteMapping("/excluir/endereco")
+	public void excluirCliente(@RequestBody Endereco exclusao) {
+		Endereco endereco = repositorio.getById(exclusao.getId());
 		repositorio.delete(endereco);
 	}
 	

@@ -1,4 +1,4 @@
-package com.autobots.automanager.modelo.selecionadores;
+package com.autobots.automanager.modelo;
 
 import java.util.List;
 
