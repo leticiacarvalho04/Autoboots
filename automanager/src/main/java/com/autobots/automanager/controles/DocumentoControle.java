@@ -2,39 +2,43 @@ package com.autobots.automanager.controles;
 
 import java.util.List;
 
+import com.autobots.automanager.entidades.Usuario;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkDocumento;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.autobots.automanager.entidades.Cliente;
 import com.autobots.automanager.entidades.Documento;
-import com.autobots.automanager.modelo.DocumentoAtualizador;
+import com.autobots.automanager.modelo.atualizadores.DocumentoAtualizador;
 import com.autobots.automanager.repositorios.DocumentoRepositorio;
 
 @RestController
+@RequestMapping("/documento")
 public class DocumentoControle {
 	
 	@Autowired
-	private DocumentoRepositorio repositorio;
+	public DocumentoRepositorio repositorio;
 	
-	// cadastro documento
-	@PostMapping("/cadastro/documento")
+	@Autowired
+	public AdicionadorLinkDocumento adicionadorLink;
+	
+	@Autowired
+	public UsuarioRepositorio usuarioRepositorio;
+	
+	@PostMapping("/cadastro")
 	public void cadastrarDocumento(@RequestBody Documento documento) {
+		adicionadorLink.adicionarLink(documento);
 		repositorio.save(documento);
 	}
 	
-	// listagem dos documentos
-	@GetMapping("/documento")
-	public List<Documento> listar(){
-		return repositorio.findAll();
+	@GetMapping
+	public List<Documento> obterDocumento(){
+		List<Documento> documentos = repositorio.findAll();
+		adicionadorLink.adicionarLink(documentos);
+		return documentos;
 	}
-	
-	// atualizar documentos
-	@PutMapping("/atualizar/documento")
+
+	@PutMapping("/atualizar")
 	public void atualizarDocumento(@RequestBody Documento doc) {
 		Documento documento = repositorio.getById(doc.getId());
 		DocumentoAtualizador atualizador = new DocumentoAtualizador();
@@ -42,10 +46,16 @@ public class DocumentoControle {
 		repositorio.save(documento);
 	}
 	
-	// excluir documento
-	@DeleteMapping("/excluir/documento")
-	public void excluirCliente(@RequestBody Documento exclusao) {
-		Documento documento = repositorio.getById(exclusao.getId());
+	@DeleteMapping("/excluir/{id}")
+	public void excluirCliente(@PathVariable Long id) {
+		Documento documento = repositorio.getById(id);
+		List<Usuario> usuarios = usuarioRepositorio.findAll();
+		for(Usuario usuario : usuarios){
+			if(usuario.getDocumentos().contains(documento)){
+				usuario.getDocumentos().remove(documento);
+                usuarioRepositorio.save(usuario);
+			}
+		}
 		repositorio.delete(documento);
 	}
 
