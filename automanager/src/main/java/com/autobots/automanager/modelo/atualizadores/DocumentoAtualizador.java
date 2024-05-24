@@ -7,10 +7,10 @@ import com.autobots.automanager.modelo.StringVerificadorNulo;
 
 public class DocumentoAtualizador {
 	private StringVerificadorNulo verificador = new StringVerificadorNulo();
-
+	
 	public void atualizar(Documento documento, Documento atualizacao) {
 		if (atualizacao != null) {
-			if (!verificador.verificar(atualizacao.getTipo())) {
+			if (!verificador.verificar(String.valueOf(atualizacao.getTipo()))) {
 				documento.setTipo(atualizacao.getTipo());
 			}
 			if (!verificador.verificar(atualizacao.getNumero())) {
@@ -18,7 +18,7 @@ public class DocumentoAtualizador {
 			}
 		}
 	}
-
+	
 	public void atualizar(List<Documento> documentos, List<Documento> atualizacoes) {
 		for (Documento atualizacao : atualizacoes) {
 			for (Documento documento : documentos) {

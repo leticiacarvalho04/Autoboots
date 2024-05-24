@@ -1,86 +1,63 @@
 package com.autobots.automanager.controles;
 
-import java.util.List;
-
-import com.autobots.automanager.entidades.Documento;
-import com.autobots.automanager.modelo.AdicionadorLinkEndereco;
-import com.autobots.automanager.modelo.DocumentoAtualizador;
+import com.autobots.automanager.entidades.Empresa;
+import com.autobots.automanager.entidades.Endereco;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEndereco;
+import com.autobots.automanager.modelo.atualizadores.EnderecoAtualizador;
+import com.autobots.automanager.repositorios.EmpresaRepositorio;
+import com.autobots.automanager.repositorios.EnderecoRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import com.autobots.automanager.entidades.Cliente;
-import com.autobots.automanager.entidades.Endereco;
-import com.autobots.automanager.modelo.EnderecoAtualizador;
-import com.autobots.automanager.repositorios.EnderecoRepositorio;
+import java.util.List;
 
 @RestController
+@RequestMapping("/endereco")
 public class EnderecoControle {
 
 	@Autowired
 	public EnderecoRepositorio repositorio;
-
+	
 	@Autowired
-	private AdicionadorLinkEndereco adicionadorLink;
+	public AdicionadorLinkEndereco adicionadorLink;
 	
-	// cadastrar endereço
-	@PostMapping("/cadastro/endereco")
-	public ResponseEntity<?> cadastrarEndereco(@RequestBody Endereco endereco) {
-		HttpStatus status = HttpStatus.CONFLICT;
-		if (endereco.getId() == null) {
-			repositorio.save(endereco);
-			status = HttpStatus.CREATED;
-		}
-		return new ResponseEntity<>(status);
+	@Autowired
+	public EmpresaRepositorio empresaRepositorio;
+	
+	@PostMapping("/cadastro")
+	public void cadastrarEndereco(@RequestBody Endereco endereco) {
+		adicionadorLink.adicionarLink(endereco);
+		repositorio.save(endereco);
+	}
 
-	}
-	
-	// listar endereços
-	@GetMapping("/enderecos")
-	public ResponseEntity<List<Endereco>> obterEndereco() {
+	@GetMapping
+	public List<Endereco> obterEndereco(){
 		List<Endereco> enderecos = repositorio.findAll();
-		if (enderecos.isEmpty()) {
-			ResponseEntity<List<Endereco>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
-		} else {
-			adicionadorLink.adicionarLink(enderecos);
-			ResponseEntity<List<Endereco>> resposta = new ResponseEntity<>(enderecos, HttpStatus.FOUND);
-			return resposta;
-		}
+		adicionadorLink.adicionarLink(enderecos);
+		return enderecos;
 	}
-	
-	//atualizar endereços
-	@PutMapping("/atualizar/endereco")
-	public ResponseEntity<?> atualizarEndereco(@RequestBody Endereco atualizacao) {
-		HttpStatus status = HttpStatus.CONFLICT;
-		Endereco endereco = repositorio.getById(atualizacao.getId());
-		if (endereco != null) {
-			EnderecoAtualizador atualizador = new EnderecoAtualizador();
-			atualizador.atualizar(endereco, atualizacao);
-			repositorio.save(endereco);
-			status = HttpStatus.OK;
-		} else {
-			status = HttpStatus.BAD_REQUEST;
-		}
-		return new ResponseEntity<>(status);
+
+	@PutMapping("/atualizar")
+	public void atualizarEndereco(@RequestBody Endereco e) {
+		Endereco endereco = repositorio.getById(e.getId());
+		EnderecoAtualizador atualizador = new EnderecoAtualizador();
+		atualizador.atualizar(endereco, e);
+		repositorio.save(endereco);
 	}
-	
-	// excluir endereço
-	@DeleteMapping("/excluir/endereco")
-	public ResponseEntity<?> excluirEndereco(@RequestBody Endereco exclusao) {
-		HttpStatus status = HttpStatus.BAD_REQUEST;
-		Endereco endereco = repositorio.getById(exclusao.getId());
-		if (endereco != null) {
-			repositorio.delete(endereco);
-			status = HttpStatus.OK;
+
+	@DeleteMapping("/excluir/{id}")
+	public void excluirCliente(@PathVariable Long id) {
+		Endereco endereco = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		List<Empresa> empresas = empresaRepositorio.findAll();
+		for(Empresa e : empresas){
+			if(e.getEndereco().getId().equals(endereco.getId())){
+                e.setEndereco(null);
+                empresaRepositorio.save(e);
+            }
 		}
-		return new ResponseEntity<>(status);
+		repositorio.delete(endereco);
 	}
 	
 }
