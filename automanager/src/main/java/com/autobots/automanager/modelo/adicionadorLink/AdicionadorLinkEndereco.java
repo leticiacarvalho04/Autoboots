@@ -1,4 +1,4 @@
-package com.autobots.automanager.modelo;
+package com.autobots.automanager.modelo.adicionadorLink;
 
 import com.autobots.automanager.controles.EnderecoControle;
 import com.autobots.automanager.entidades.Endereco;

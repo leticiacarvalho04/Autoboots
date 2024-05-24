@@ -1,9 +1,9 @@
-package com.autobots.automanager.modelo;
+package com.autobots.automanager.modelo.adicionadorLink;
 
+import com.autobots.automanager.controles.ClienteControle;
 import com.autobots.automanager.entidades.Cliente;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
-import com.autobots.automanager.controles.ClienteControle;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -17,7 +17,7 @@ public class AdicionadorLinkCliente implements AdicionadorLink<Cliente> {
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(ClienteControle.class)
-							.obterCliente(id))
+							.obterCliente())
 					.withSelfRel();
 			cliente.add(linkProprio);
 		}
@@ -28,7 +28,7 @@ public class AdicionadorLinkCliente implements AdicionadorLink<Cliente> {
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(ClienteControle.class)
-						.obterClientes())
+						.obterCliente())
 				.withRel("clientes");
 		objeto.add(linkProprio);
 	}
