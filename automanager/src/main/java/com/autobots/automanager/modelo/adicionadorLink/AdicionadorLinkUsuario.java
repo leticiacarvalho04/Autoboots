@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AdiconadorLinkUsuario implements AdicionadorLink<Usuario> {
+public class AdicionadorLinkUsuario implements AdicionadorLink<Usuario> {
+	
 	@Override
-	public void adicionarLink(List<Usuario> lista){
-		for(Usuario usuario: lista){
+	public void adicionarLink(List<Usuario> lista) {
+		for (Usuario usuario : lista) {
 			long id = usuario.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
@@ -22,14 +23,15 @@ public class AdiconadorLinkUsuario implements AdicionadorLink<Usuario> {
 			usuario.add(linkProprio);
 		}
 	}
-
+	
 	@Override
-	public void adicionarLink(Usuario objeto){
+	public void adicionarLink(Usuario objeto) {
+		long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(UsuarioControle.class)
 						.obterUsuario())
-				.withRel("usuarios");
+				.withSelfRel();
 		objeto.add(linkProprio);
 	}
 }

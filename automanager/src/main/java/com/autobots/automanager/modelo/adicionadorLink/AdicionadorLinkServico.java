@@ -10,28 +10,28 @@ import java.util.List;
 
 @Component
 public class AdicionadorLinkServico implements AdicionadorLink<Servico> {
-
+	
 	@Override
 	public void adicionarLink(List<Servico> lista) {
-        for(Servico servico: lista){
+		for (Servico servico : lista) {
 			long id = servico.getId();
-	        Link linkProprio = WebMvcLinkBuilder
-			        .linkTo(WebMvcLinkBuilder
-			                .methodOn(ServicoControle.class)
-					        .obterServico())
-			        .withSelfRel();
+			Link linkProprio = WebMvcLinkBuilder
+					.linkTo(WebMvcLinkBuilder
+							.methodOn(ServicoControle.class)
+							.obterServico())
+					.withSelfRel();
 			servico.add(linkProprio);
-        }
-    }
-
+		}
+	}
+	
 	@Override
 	public void adicionarLink(Servico objeto) {
-        Link linkProprio = WebMvcLinkBuilder
-		        .linkTo(WebMvcLinkBuilder
-			            .methodOn(ServicoControle.class)
-			            .obterServico())
-		        .withRel("servicos");
+		long id = objeto.getId();
+		Link linkProprio = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(ServicoControle.class)
+						.obterServico())
+				.withSelfRel();
 		objeto.add(linkProprio);
-    }
-
+	}
 }

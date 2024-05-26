@@ -28,7 +28,6 @@ public class EnderecoControle {
 	
 	@PostMapping("/cadastro")
 	public void cadastrarEndereco(@RequestBody Endereco endereco) {
-		adicionadorLink.adicionarLink(endereco);
 		repositorio.save(endereco);
 	}
 

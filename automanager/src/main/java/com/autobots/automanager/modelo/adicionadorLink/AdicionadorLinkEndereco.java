@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco>{
+public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco> {
+	
 	@Override
-	public void adicionarLink(List<Endereco> lista){
-		for (Endereco endereco: lista){
+	public void adicionarLink(List<Endereco> lista) {
+		for (Endereco endereco : lista) {
 			long id = endereco.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
@@ -22,14 +23,15 @@ public class AdicionadorLinkEndereco implements AdicionadorLink<Endereco>{
 			endereco.add(linkProprio);
 		}
 	}
-
+	
 	@Override
-	public void adicionarLink(Endereco objeto){
+	public void adicionarLink(Endereco objeto) {
+		long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(EnderecoControle.class)
 						.obterEndereco())
-				.withRel("endereços");
+				.withSelfRel();
 		objeto.add(linkProprio);
 	}
 }

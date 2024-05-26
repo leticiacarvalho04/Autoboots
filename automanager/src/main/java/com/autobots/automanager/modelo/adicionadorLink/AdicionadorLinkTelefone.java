@@ -10,9 +10,10 @@ import java.util.List;
 
 @Component
 public class AdicionadorLinkTelefone implements AdicionadorLink<Telefone> {
+	
 	@Override
-	public void adicionarLink(List<Telefone> lista){
-		for(Telefone telefone: lista){
+	public void adicionarLink(List<Telefone> lista) {
+		for (Telefone telefone : lista) {
 			long id = telefone.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
@@ -22,14 +23,15 @@ public class AdicionadorLinkTelefone implements AdicionadorLink<Telefone> {
 			telefone.add(linkProprio);
 		}
 	}
-
+	
 	@Override
-	public void adicionarLink(Telefone objeto){
+	public void adicionarLink(Telefone objeto) {
+		long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(TelefoneControle.class)
 						.obterTelefone())
-				.withRel("telefones");
+				.withSelfRel();
 		objeto.add(linkProprio);
 	}
 }

@@ -2,7 +2,7 @@ package com.autobots.automanager.controles;
 
 import com.autobots.automanager.dto.UsuarioDto;
 import com.autobots.automanager.entidades.*;
-import com.autobots.automanager.modelo.adicionadorLink.AdiconadorLinkUsuario;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,7 +43,7 @@ public class UsuarioControle {
 	public VeiculoRepositorio veiculoRepositorio;
 	
 	@Autowired
-	public AdiconadorLinkUsuario adicionadorLink;
+	public AdicionadorLinkUsuario adicionadorLink;
 	
 	@Autowired
 	public EmpresaRepositorio empresaRepositorio;

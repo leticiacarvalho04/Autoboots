@@ -10,6 +10,7 @@ import java.util.List;
 
 @Component
 public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
+	
 	@Override
 	public void adicionarLink(List<Veiculo> lista){
 		for(Veiculo veiculo: lista){
@@ -29,7 +30,7 @@ public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(VeiculoControle.class)
 						.obterVeiculo())
-				.withRel("veiculos");
+				.withSelfRel();
 		objeto.add(linkProprio);
 	}
 }

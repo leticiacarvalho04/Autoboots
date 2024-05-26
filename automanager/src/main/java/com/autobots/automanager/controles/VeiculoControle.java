@@ -1,5 +1,6 @@
 package com.autobots.automanager.controles;
 
+import com.autobots.automanager.dto.VeiculoDto;
 import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Veiculo;
 import com.autobots.automanager.entidades.Venda;
@@ -10,6 +11,7 @@ import com.autobots.automanager.repositorios.VeiculoRepositorio;
 import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -51,14 +53,14 @@ public class VeiculoControle {
 	}
 	
 	@PostMapping("/cadastro")
-	public void cadastrarVeiculo(@RequestBody Veiculo veiculo) {
-		Set<Venda> vendas = veiculo.getVendas().stream()
-				.map(venda -> vendaRepositorio.findById(venda.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Venda não encontrada com ID: " + venda.getId())))
-				.collect(Collectors.toSet());
-		veiculo.setVendas(vendas);
+	public void cadastrarVeiculo(@RequestBody VeiculoDto veiculoDTO) {
+		Veiculo veiculo = new Veiculo();
+		veiculo.setTipo(veiculoDTO.getTipo());
+		veiculo.setModelo(veiculoDTO.getModelo());
+		veiculo.setPlaca(veiculoDTO.getPlaca());
 		veiculoRepositorio.save(veiculo);
-		adicionadorLink.adicionarLink(veiculo);
 	}
+	
 	
 	@PutMapping("/atualizar")
 	public void atualizarVeiculo(@RequestBody Veiculo veiculo) {

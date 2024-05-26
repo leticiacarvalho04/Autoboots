@@ -38,7 +38,6 @@ public class ServicoControle {
 	@GetMapping("/{id}")
 	public Servico buscarServicoPeloId(Long id){
 		Servico servico = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		adicionadorLink.adicionarLink(servico);
 		return servico;
 	}
 	
@@ -51,7 +50,6 @@ public class ServicoControle {
 	
 	@PostMapping("/cadastro")
 	public void cadastrarServico(@RequestBody Servico servico) {
-		adicionadorLink.adicionarLink(servico);
         repositorio.save(servico);
     }
 	

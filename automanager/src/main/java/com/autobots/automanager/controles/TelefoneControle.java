@@ -26,7 +26,6 @@ public class TelefoneControle {
 
 	@PostMapping("/cadastro")
 	public void cadastrarTelefone(@RequestBody Telefone telefone) {
-		adicionadorLink.adicionarLink(telefone);
 		repositorio.save(telefone);
 	}
 

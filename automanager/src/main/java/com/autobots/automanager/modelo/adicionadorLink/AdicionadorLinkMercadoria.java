@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria>{
+public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria> {
+	
 	@Override
 	public void adicionarLink(List<Mercadoria> lista) {
-		for(Mercadoria mercadoria: lista){
+		for (Mercadoria mercadoria : lista) {
 			long id = mercadoria.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
@@ -21,16 +22,16 @@ public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria>{
 					.withSelfRel();
 			mercadoria.add(linkProprio);
 		}
-    }
-
+	}
+	
 	@Override
-	public void adicionarLink(Mercadoria objeto){
+	public void adicionarLink(Mercadoria objeto) {
 		long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(MercadoriaControle.class)
 						.obterMercadoria())
-				.withRel("mercadorias");
+				.withSelfRel();
 		objeto.add(linkProprio);
 	}
 }
