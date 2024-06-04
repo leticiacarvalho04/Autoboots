@@ -1,8 +1,6 @@
 package com.autobots.automanager.entidades;
 
 import com.autobots.automanager.enumeracoes.PerfilUsuario;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
@@ -16,7 +14,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(exclude = { "mercadorias", "vendas", "veiculos" })
 @Entity
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Usuario extends RepresentationModel<Usuario> {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +27,7 @@ public class Usuario extends RepresentationModel<Usuario> {
 	private String nomeSocial;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
-	@JsonBackReference
+	@Enumerated(EnumType.STRING)
 	private Set<PerfilUsuario> perfis = new HashSet<>();
 	
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -37,7 +35,6 @@ public class Usuario extends RepresentationModel<Usuario> {
 	private Set<Telefone> telefones = new HashSet<>();
 	
 	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-	@JsonBackReference
 	private Endereco endereco;
 	
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)

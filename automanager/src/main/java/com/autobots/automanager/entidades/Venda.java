@@ -29,11 +29,11 @@ public class Venda extends RepresentationModel<Venda> {
 	private String identificacao;
 	
 	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference
+	@JsonBackReference(value = "cliente-reference")
 	private Usuario cliente;
 	
 	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference
+	@JsonBackReference(value = "funcionario-reference")
 	private Usuario funcionario;
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
@@ -45,6 +45,6 @@ public class Venda extends RepresentationModel<Venda> {
 	private Set<Servico> servicos = new HashSet<>();
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference
+	@JsonBackReference(value = "veiculo-reference")
 	private Veiculo veiculo;
 }

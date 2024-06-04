@@ -3,12 +3,14 @@ package com.autobots.automanager.controles;
 import com.autobots.automanager.entidades.Email;
 import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEmail;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
 import com.autobots.automanager.modelo.atualizadores.EmailAtualizador;
 import com.autobots.automanager.modelo.selecionadores.EmailSelecionador;
 import com.autobots.automanager.repositorios.EmailRepositorio;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,6 +32,9 @@ public class EmailControle {
 	@Autowired
 	public UsuarioRepositorio usuarioRepositorio;
 	
+	@Autowired
+	private AdicionadorLinkUsuario adicionadorLinkUsuario;
+	
 	@GetMapping("/{id}")
 	public Email buscarPorId(Long id) {
         Email email = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -44,11 +49,16 @@ public class EmailControle {
         return emails;
 	}
 	
-	@PostMapping("/cadastro")
-	public void cadastrarEmail(@RequestBody Email email) {
+	@PostMapping("/cadastro/{idUsuario}")
+	public ResponseEntity<Email> cadastrarEmail(@RequestBody Email email, @PathVariable Long idUsuario) {
+		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		usuario.getEmails().add(email);
+		adicionadorLinkUsuario.adicionarLink(usuario);
+		usuarioRepositorio.save(usuario);
 		adicionadorLink.adicionarLink(email);
-        repositorio.save(email);
-    }
+		repositorio.save(email);
+		return new ResponseEntity<>(email, HttpStatus.CREATED);
+	}
 	
 	@PutMapping("/atualizar")
 	public void atualizarEmail(@RequestBody Email email) {

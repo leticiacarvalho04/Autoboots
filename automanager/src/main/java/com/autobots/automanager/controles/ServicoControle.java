@@ -3,7 +3,9 @@ package com.autobots.automanager.controles;
 import com.autobots.automanager.entidades.Empresa;
 import com.autobots.automanager.entidades.Servico;
 import com.autobots.automanager.entidades.Venda;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEmpresa;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkServico;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkVenda;
 import com.autobots.automanager.modelo.atualizadores.ServicoAtualizador;
 import com.autobots.automanager.modelo.selecionadores.ServicoSelecionador;
 import com.autobots.automanager.repositorios.EmpresaRepositorio;
@@ -11,6 +13,7 @@ import com.autobots.automanager.repositorios.ServicoRepositorio;
 import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -35,6 +38,12 @@ public class ServicoControle {
 	@Autowired
 	public EmpresaRepositorio empresaRepositorio;
 	
+	@Autowired
+	private AdicionadorLinkEmpresa adicionadorLinkEmpresa;
+	
+	@Autowired
+	private AdicionadorLinkVenda adicionadorLinkVenda;
+	
 	@GetMapping("/{id}")
 	public Servico buscarServicoPeloId(Long id){
 		Servico servico = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -48,10 +57,27 @@ public class ServicoControle {
         return servico;
     }
 	
-	@PostMapping("/cadastro")
-	public void cadastrarServico(@RequestBody Servico servico) {
-        repositorio.save(servico);
-    }
+	@PostMapping("/cadastro/venda/{idVenda}")
+	public ResponseEntity<Servico> cadastrarServico(@RequestBody Servico servico, @PathVariable Long idVenda) {
+		Venda venda = vendaRepositorio.getById(idVenda);
+		servico = repositorio.save(servico);
+		venda.getServicos().add(servico);
+		adicionadorLinkVenda.adicionarLink(venda);
+		repositorio.save(servico);
+		adicionadorLink.adicionarLink(servico);
+		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
+	}
+	
+	@PostMapping("/cadastro/empresa/{idEmpresa}")
+	public ResponseEntity<Servico> cadastrarServicoEmpresa(@RequestBody Servico servico, @PathVariable Long idEmpresa) {
+		Empresa empresa = empresaRepositorio.getById(idEmpresa);
+		servico = repositorio.save(servico);
+		empresa.getServicos().add(servico);
+		adicionadorLinkEmpresa.adicionarLink(empresa);
+		repositorio.save(servico);
+		adicionadorLink.adicionarLink(servico);
+		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
+	}
 	
 	@PutMapping("/atualizar")
 	public void atualizarServico(@RequestBody Servico servico) {

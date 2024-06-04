@@ -11,8 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
-@Getter
-@Setter
+@Data
 @Entity
 public class Telefone extends RepresentationModel<Telefone> {
 	@Id()

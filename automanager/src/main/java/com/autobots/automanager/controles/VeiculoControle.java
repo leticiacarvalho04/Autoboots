@@ -4,13 +4,17 @@ import com.autobots.automanager.dto.VeiculoDto;
 import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.entidades.Veiculo;
 import com.autobots.automanager.entidades.Venda;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkVeiculo;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkVenda;
 import com.autobots.automanager.modelo.selecionadores.VeiculoSelecionador;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.repositorios.VeiculoRepositorio;
 import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -38,6 +42,12 @@ public class VeiculoControle {
 	@Autowired
 	private AdicionadorLinkVeiculo adicionadorLink;
 	
+	@Autowired
+	private AdicionadorLinkVenda adicionadorLinkVenda;
+	
+	@Autowired
+	private AdicionadorLinkUsuario adicionadorLinkUsuario;
+	
 	@GetMapping("/{id}")
 	public Veiculo obterVeiculoPorId(@PathVariable Long id) {
 		Veiculo veiculo = veiculoRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -52,15 +62,19 @@ public class VeiculoControle {
 		return veiculos;
 	}
 	
-	@PostMapping("/cadastro")
-	public void cadastrarVeiculo(@RequestBody VeiculoDto veiculoDTO) {
-		Veiculo veiculo = new Veiculo();
-		veiculo.setTipo(veiculoDTO.getTipo());
-		veiculo.setModelo(veiculoDTO.getModelo());
-		veiculo.setPlaca(veiculoDTO.getPlaca());
+	@PostMapping("/cadastro/{idVenda}/{idUsuario}")
+	public ResponseEntity<Veiculo> cadastrarVeiculoVenda(@RequestBody VeiculoDto veiculoDto, @PathVariable Long idVenda, @PathVariable Long idUsuario) {
+		Venda venda = vendaRepositorio.findById(idVenda)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Venda não encontrada com ID: " + idVenda));
+		Usuario proprietario = usuarioRepositorio.findById(idUsuario)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario não encontrado com ID: " + idUsuario));
+		
+		Veiculo veiculo = veiculoDto.toEntity();
+		veiculo.getVendas().add(venda);
+		veiculo.setProprietario(proprietario);
 		veiculoRepositorio.save(veiculo);
+		return new ResponseEntity<Veiculo>(veiculo, HttpStatus.CREATED);
 	}
-	
 	
 	@PutMapping("/atualizar")
 	public void atualizarVeiculo(@RequestBody Veiculo veiculo) {

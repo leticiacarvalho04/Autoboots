@@ -6,6 +6,7 @@ import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkVenda;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,12 +37,12 @@ public class VendaControle {
 	public EmpresaRepositorio empresaRepositorio;
 	
 	@Autowired
-	private AdicionadorLinkVenda adiconadorLink;
+	private AdicionadorLinkVenda adicionadorLink;
 	
 	@GetMapping("/{id}")
 	public Venda obterVendaPeloId(@PathVariable Long id) {
 		Venda venda = vendaRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		adiconadorLink.adicionarLink(venda);
+		adicionadorLink.adicionarLink(venda);
 		return venda;
 	}
 	
@@ -51,30 +52,35 @@ public class VendaControle {
 		if (vendas.isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foram encontradas vendas.");
 		}
-		vendas.forEach(adiconadorLink::adicionarLink); // Adicionando links para cada venda
+		vendas.forEach(adicionadorLink::adicionarLink);
 		return vendas;
 	}
 	
-	@PostMapping("/cadastro")
-	public void cadastrarVenda(@RequestBody VendaDto vendaDto) {
-		Usuario cliente = usuarioRepositorio.findById(vendaDto.getClienteId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado com ID: " + vendaDto.getClienteId()));
-		Usuario funcionario = usuarioRepositorio.findById(vendaDto.getFuncionarioId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado com ID: " + vendaDto.getFuncionarioId()));
-		List<Mercadoria> mercadorias = mercadoriaRepositorio.findAllById(vendaDto.getMercadorias());
-		if (mercadorias.size() != vendaDto.getMercadorias().size()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Alguma(s) mercadoria(s) não encontrada(s).");
-		}
-		List<Servico> servicos = servicoRepositorio.findAllById(vendaDto.getServicos());
-		if (servicos.size() != vendaDto.getServicos().size()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Algum(ns) serviço(s) não encontrado(s).");
-		}
-		Veiculo veiculo = veiculoRepositorio.findById(vendaDto.getVeiculoId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veículo não encontrado com ID: " + vendaDto.getVeiculoId()));
-		
-		Venda venda = vendaDto.toEntity(cliente, funcionario, mercadorias, servicos, veiculo);
+	@PostMapping("/cadastro/empresa/{idEmpresa}")
+	public ResponseEntity<Venda> cadastrarVendaEmpresa(@RequestBody VendaDto vendaDto, @PathVariable Long idEmpresa) {
+		Empresa empresa = empresaRepositorio.findById(idEmpresa)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não encontrado"));
+		Venda venda = vendaDto.cadastro();
+		empresa.getVendas().add(venda);
 		vendaRepositorio.save(venda);
-		adiconadorLink.adicionarLink(venda);
+		adicionadorLink.adicionarLink(venda);
+		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
+	}
+	
+	@PostMapping("/cadastro/{idCliente}/{idFuncionario}")
+	public ResponseEntity<Venda> cadastrarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long idCliente, @PathVariable Long idFuncionario) {
+		Usuario cliente = usuarioRepositorio.findById(idCliente)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
+		Usuario funcionario = usuarioRepositorio.findById(idFuncionario)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado"));
+		
+		Venda venda = vendaDto.cadastro();
+		venda.setCliente(cliente);
+		venda.setFuncionario(funcionario);
+		
+		vendaRepositorio.save(venda);
+		adicionadorLink.adicionarLink(venda);
+		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
 	}
 	
 	@PutMapping("/atualizar")

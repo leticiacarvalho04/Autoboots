@@ -15,6 +15,7 @@ import com.autobots.automanager.repositorios.TelefoneRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -45,40 +46,27 @@ public class ClienteControle {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Cliente> listarPorId(@PathVariable long id) {
-		Optional<Cliente> cliente = repositorio.findById(id);
-		if (cliente.isPresent()) {
-			Cliente clienteEncontrado = cliente.get();
-			adicionadorLink.adicionarLink(clienteEncontrado);
-			return new ResponseEntity<>(clienteEncontrado, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		Cliente cliente = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		adicionadorLink.adicionarLink(cliente);
+		return new ResponseEntity<>(cliente, HttpStatus.OK);
 	}
-	
+
 	@GetMapping
-	public ResponseEntity<List<Cliente>> obterCliente() {
+	public List<Cliente> obterCliente() {
 		List<Cliente> clientes = repositorio.findAll();
-		if (clientes.isEmpty()) {
-			ResponseEntity<List<Cliente>> resposta = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			return resposta;
-		} else {
-			adicionadorLink.adicionarLink(clientes);
-			ResponseEntity<List<Cliente>> resposta = new ResponseEntity<>(clientes, HttpStatus.FOUND);
-			return resposta;
-		}
+		adicionadorLink.adicionarLink(clientes);
+		return clientes;
 	}
 	
 	@PostMapping("/cadastro")
-	public void cadastrarCliente(@RequestBody ClienteDto clienteDto) {
-		List<Documento> documentos = documentoRepositorio.findAllById(clienteDto.getDocumentos());
-		Endereco endereco = enderecoRepositorio.findById(clienteDto.getEndereco()).orElse(null);
-		List<Telefone> telefones = telefoneRepositorio.findAllById(clienteDto.getTelefones());
-		
-		Cliente cliente = clienteDto.toEntity(documentos, endereco, telefones);
-		cliente.setDocumentos(documentos);
-		cliente.setEndereco(endereco);
-		cliente.setTelefones(telefones);
-		repositorio.save(cliente);
+	public ResponseEntity<Cliente> cadastrarCliente(@Validated @RequestBody Cliente cliente) {
+		try {
+			adicionadorLink.adicionarLink(cliente);
+			Cliente clienteSalvo = repositorio.save(cliente);
+			return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(null);
+		}
 	}
 	
 	@PutMapping("/atualizar")

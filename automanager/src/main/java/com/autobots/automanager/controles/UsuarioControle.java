@@ -2,14 +2,20 @@ package com.autobots.automanager.controles;
 
 import com.autobots.automanager.dto.UsuarioDto;
 import com.autobots.automanager.entidades.*;
+import com.autobots.automanager.enumeracoes.PerfilUsuario;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usuario")
@@ -63,19 +69,20 @@ public class UsuarioControle {
 	}
 	
 	@PostMapping("/cadastro")
-	public void cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
-		List<Documento> documentos = documentoRepositorio.findAllById(usuarioDto.getDocumentos());
-		Endereco endereco = enderecoRepositorio.findById(usuarioDto.getEndereco()).orElse(null);
-		List<Telefone> telefones = telefoneRepositorio.findAllById(usuarioDto.getTelefones());
-		List<Email> emails = emailRepositorio.findAllById(usuarioDto.getEmails());
-		List<CredencialUsuarioSenha> credenciais = credencialRepositorio.findAllById(usuarioDto.getCredenciais());
-		List<Mercadoria> mercadorias = mercadoriaRepositorio.findAllById(usuarioDto.getMercadorias());
-		List<Venda> vendas = vendaRepositorio.findAllById(usuarioDto.getVendas());
-		List<Veiculo> veiculos = veiculoRepositorio.findAllById(usuarioDto.getVeiculos());
-		
-		Usuario usuario = usuarioDto.toEntity(documentos, endereco, telefones, emails, usuarioDto.getPerfis(), credenciais, mercadorias, vendas, veiculos);
-		adicionadorLink.adicionarLink(usuario);
-		repositorio.save(usuario);
+	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
+		try {
+			List<PerfilUsuario> perfis = usuarioDto.getPerfis().stream()
+					.map(perfil -> PerfilUsuario.valueOf(String.valueOf(perfil)))
+					.collect(Collectors.toList());
+			Usuario usuario = usuarioDto.toEntity(perfis);
+			Usuario usuarioSalvo = repositorio.save(usuario);
+			adicionadorLink.adicionarLink(usuarioSalvo);
+			return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@PutMapping("/atualizar")

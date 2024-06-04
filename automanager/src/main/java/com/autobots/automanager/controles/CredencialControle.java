@@ -2,11 +2,14 @@ package com.autobots.automanager.controles;
 
 import com.autobots.automanager.entidades.Credencial;
 import com.autobots.automanager.entidades.CredencialUsuarioSenha;
+import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkCredencial;
 import com.autobots.automanager.modelo.selecionadores.CredencialSelecionador;
 import com.autobots.automanager.repositorios.CredencialRepositorio;
+import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,6 +28,11 @@ public class CredencialControle {
 	@Autowired
 	public AdicionadorLinkCredencial adicionadorLink;
 	
+	@Autowired
+	private UsuarioRepositorio usuarioRepositorio;
+	@Autowired
+	private CredencialRepositorio credencialRepositorio;
+	
 	@GetMapping("/{id}")
 	public Credencial getCredencial(@PathVariable long id) {
 		Credencial credencial = repositorio.findById(id)
@@ -42,27 +50,26 @@ public class CredencialControle {
 		return credenciais;
 	}
 	
-	@PostMapping("/cadastro")
-	public void cadastrarCredencial(@RequestBody CredencialUsuarioSenha credencial) {
-		adicionadorLink.adicionarLink(credencial);
-		repositorio.save(credencial);
+	@PostMapping("/cadastro/{idUsuario}")
+	public ResponseEntity<CredencialUsuarioSenha> cadastrarCredencial(@RequestBody CredencialUsuarioSenha credencial, @PathVariable Long idUsuario) {
+		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		credencial = credencialRepositorio.save(credencial);
+		usuario.getCredenciais().add(credencial);
+		usuarioRepositorio.save(usuario);
+		return new ResponseEntity<>(credencial, HttpStatus.CREATED);
 	}
-	
 	
 	@PutMapping("/atualizar")
 	public void atualizarCredencial(@RequestBody CredencialUsuarioSenha credencialAtualizada) {
 		CredencialUsuarioSenha credencialExistente = repositorio.findById(credencialAtualizada.getId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credencial not found"));
-
 		credencialExistente.setCriacao(credencialAtualizada.getCriacao());
 		credencialExistente.setUltimoAcesso(credencialAtualizada.getUltimoAcesso());
 		credencialExistente.setInativo(credencialAtualizada.isInativo());
 		credencialExistente.setNomeUsuario(credencialAtualizada.getNomeUsuario());
 		credencialExistente.setSenha(credencialAtualizada.getSenha());
-
 		repositorio.save(credencialExistente);
 	}
-	
 	
 	@DeleteMapping("/excluir/{id}")
 	public void excluirCredencial(@PathVariable Long id) {

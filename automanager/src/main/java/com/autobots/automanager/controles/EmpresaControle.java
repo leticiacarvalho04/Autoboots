@@ -6,6 +6,7 @@ import com.autobots.automanager.modelo.adicionadorLink.*;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -84,41 +85,30 @@ public class EmpresaControle {
 		List<Empresa> empresas = empresaRepositorio.findAll();
 		for (Empresa empresa : empresas) {
 			adicionadorLinkEmpresa.adicionarLink(empresa);
-			
 			for (Telefone telefone : empresa.getTelefones()) {
 				adicionadorLinkTelefone.adicionarLink(telefone);
 			}
-			
 			if (empresa.getEndereco() != null) {
 				adicionadorLinkEndereco.adicionarLink(empresa.getEndereco());
 			}
 			
 			for (Usuario usuario : empresa.getUsuarios()) {
 				adicionadorLinkUsuario.adicionarLink(usuario);
-				
-				// Adicionar links para telefones de cada usuário
 				for (Telefone telefone : usuario.getTelefones()) {
 					adicionadorLinkTelefone.adicionarLink(telefone);
 				}
-				
-				// Adicionar links para documentos de cada usuário, se houver
 				for (Documento documento : usuario.getDocumentos()) {
 					adicionadorLinkDocumento.adicionarLink(documento);
 				}
-				
-				// Adicionar links para emails de cada usuário, se houver
 				for (Email email : usuario.getEmails()) {
 					adicionadorLinkEmail.adicionarLink(email);
 				}
-
 				for (Credencial credencial : usuario.getCredenciais()) {
 					adicionadorLinkCredencial.adicionarLink(credencial);
 				}
-
 				for (Mercadoria mercadoria : usuario.getMercadorias()) {
 					adicionadorLinkMercadoria.adicionarLink(mercadoria);
 				}
-
 				for (Venda venda : usuario.getVendas()) {
 					adicionadorLinkVenda.adicionarLink(venda);
 				}
@@ -127,11 +117,9 @@ public class EmpresaControle {
 			for (Mercadoria mercadoria : empresa.getMercadorias()) {
 				adicionadorLinkMercadoria.adicionarLink(mercadoria);
 			}
-			
 			for (Servico servico : empresa.getServicos()) {
 				adicionadorLinkServico.adicionarLink(servico);
 			}
-			
 			for (Venda venda : empresa.getVendas()) {
 				adicionadorLinkVenda.adicionarLink(venda);
 			}
@@ -139,20 +127,12 @@ public class EmpresaControle {
 		return empresas;
 	}
 	
-	
 	@PostMapping("/cadastro")
-	public void cadastrarEmpresa(@RequestBody EmpresaDto empresaDto) {
-		Set<Telefone> telefones = telefoneRepositorio.findAllById(empresaDto.getTelefones()).stream().collect(Collectors.toSet());
-		Endereco endereco = enderecoRepositorio.findById(empresaDto.getEndereco()).orElse(null);
-		Set<Usuario> usuarios = usuarioRepositorio.findAllById(empresaDto.getUsuarios()).stream().collect(Collectors.toSet());
-		Set<Mercadoria> mercadorias = mercadoriaRepositorio.findAllById(empresaDto.getMercadorias()).stream().collect(Collectors.toSet());
-		Set<Servico> servicos = servicoRepositorio.findAllById(empresaDto.getServicos()).stream().collect(Collectors.toSet());
-		Set<Venda> vendas = vendaRepositorio.findAllById(empresaDto.getVendas()).stream().collect(Collectors.toSet());
-		
-		Empresa empresa = empresaDto.toEntity(telefones, endereco, usuarios, mercadorias, servicos, vendas);
-
+	public ResponseEntity<Empresa> cadastrarEmpresa(@RequestBody EmpresaDto empresaDto) {
+		Empresa empresa = empresaDto.cadastro();
 		empresaRepositorio.save(empresa);
 		adicionadorLink.adicionarLink(empresa);
+		return new ResponseEntity<Empresa>(empresa, HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/atualizar")
