@@ -11,26 +11,39 @@ import java.util.List;
 @Component
 public class AdicionadorLinkEmpresa implements AdicionadorLink<Empresa> {
 	@Override
-	public void adicionarLink(List<Empresa> lista){
-		for(Empresa empresa: lista){
+	public void adicionarLink(List<Empresa> lista) {
+		for (Empresa empresa : lista) {
 			long id = empresa.getId();
-            Link linkProprio = WebMvcLinkBuilder
-		            .linkTo(WebMvcLinkBuilder
-				            .methodOn(EmpresaControle.class)
-				            .obterEmpresa())
-		            .withSelfRel();
-            empresa.add(linkProprio);
+			Link linkProprio = WebMvcLinkBuilder
+					.linkTo(WebMvcLinkBuilder
+							.methodOn(EmpresaControle.class)
+							.obterEmpresa(id))
+					.withSelfRel();
+			empresa.add(linkProprio);
 		}
 	}
-
+	
 	@Override
-	public void adicionarLink(Empresa objeto){
+	public void adicionarLink(Empresa objeto) {
 		long id = objeto.getId();
-        Link linkProprio = WebMvcLinkBuilder
-                .linkTo(WebMvcLinkBuilder
+		Link linkLista = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(EmpresaControle.class)
+						.obterEmpresas())
+				.withRel("listarTodasAsEmpresas");
+		Link linkDel = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(EmpresaControle.class)
+						.excluirEmpresa(id))
+				.withRel("deletarEmpresa");
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
                         .methodOn(EmpresaControle.class)
-                        .obterEmpresa())
-                .withRel("empresas");
-        objeto.add(linkProprio);
+                        .atualizarEmpresa(null, id))
+                .withRel("atualizarEmpresa");
+		
+		objeto.add(linkDel);
+		objeto.add(linkLista);
+		objeto.add(linkAtualizar);
 	}
 }

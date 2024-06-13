@@ -14,11 +14,11 @@ public class AdicionadorLinkUsuario implements AdicionadorLink<Usuario> {
 	@Override
 	public void adicionarLink(List<Usuario> lista) {
 		for (Usuario usuario : lista) {
-			long id = usuario.getId();
+			Long id = usuario.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(UsuarioControle.class)
-							.obterUsuario())
+							.obterUsuario(id))
 					.withSelfRel();
 			usuario.add(linkProprio);
 		}
@@ -26,12 +26,24 @@ public class AdicionadorLinkUsuario implements AdicionadorLink<Usuario> {
 	
 	@Override
 	public void adicionarLink(Usuario objeto) {
-		long id = objeto.getId();
+		Long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(UsuarioControle.class)
-						.obterUsuario())
+						.obterUsuarios())
 				.withSelfRel();
 		objeto.add(linkProprio);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(UsuarioControle.class)
+                        .atualizarUsuario(null, id))
+                .withRel("AtualizarUsuario:");
+        objeto.add(linkAtualizar);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(UsuarioControle.class)
+                        .excluirUsuario(id))
+                .withRel("DeletarUsuario:");
+        objeto.add(linkDeletar);
 	}
 }

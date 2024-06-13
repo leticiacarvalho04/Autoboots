@@ -18,7 +18,7 @@ public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(VeiculoControle.class)
-							.obterVeiculo())
+							.obterVeiculo(id))
 					.withSelfRel();
 			veiculo.add(linkProprio);
 		}
@@ -29,8 +29,20 @@ public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(VeiculoControle.class)
-						.obterVeiculo())
+						.obterVeiculos())
 				.withSelfRel();
 		objeto.add(linkProprio);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(VeiculoControle.class)
+                        .atualizarVeiculo(null, objeto.getId()))
+                .withRel("AtualizarVeiculo:");
+		objeto.add(linkAtualizar);
+        Link linkDeletar = WebMvcLinkBuilder
+		            .linkTo(WebMvcLinkBuilder
+                            .methodOn(VeiculoControle.class)
+                            .excluirVeiculo(objeto.getId()))
+                    .withRel("DeletarVeiculo:");
+        objeto.add(linkDeletar);
 	}
 }

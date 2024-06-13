@@ -36,14 +36,14 @@ public class EmailControle {
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
 	@GetMapping("/{id}")
-	public Email buscarPorId(Long id) {
+	public ResponseEntity<Email> obterEmail(@PathVariable Long id) {
         Email email = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		adicionadorLink.adicionarLink(email);
-		return email;
+		return new ResponseEntity<>(email, HttpStatus.OK);
     }
 	
 	@GetMapping
-	public List<Email> obterEmail(){
+	public List<Email> obterEmails(){
 		List<Email> emails = repositorio.findAll();
 		adicionadorLink.adicionarLink(emails);
         return emails;
@@ -53,23 +53,22 @@ public class EmailControle {
 	public ResponseEntity<Email> cadastrarEmail(@RequestBody Email email, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		usuario.getEmails().add(email);
-		adicionadorLinkUsuario.adicionarLink(usuario);
 		usuarioRepositorio.save(usuario);
-		adicionadorLink.adicionarLink(email);
 		repositorio.save(email);
 		return new ResponseEntity<>(email, HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/atualizar")
-	public void atualizarEmail(@RequestBody Email email) {
-		Email emailAtual = repositorio.findById(email.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		EmailAtualizador atualizador = new EmailAtualizador();
-		atualizador.atualizar(emailAtual, email);
-        repositorio.save(email);
-    }
+	@PutMapping("/atualizar/{idEmail}")
+	public ResponseEntity<Email> atualizarEmail(@RequestBody Email email, @PathVariable Long idEmail) {
+		Email emailAtual = repositorio.findById(idEmail)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Email not found"));
+		emailAtual.setEndereco(email.getEndereco());
+		repositorio.save(emailAtual);
+		return ResponseEntity.ok().build();
+	}
 	
 	@DeleteMapping("/excluir/{id}")
-    public void excluirEmail(@PathVariable Long id) {
+    public ResponseEntity<Email> excluirEmail(@PathVariable Long id) {
         Email email = repositorio.findById(id)
 		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Usuario> usuarios = usuarioRepositorio.findAll();
@@ -80,5 +79,6 @@ public class EmailControle {
 			}
 		}
 		repositorio.delete(email);
+		return new ResponseEntity<>(email, HttpStatus.OK);
     }
 }

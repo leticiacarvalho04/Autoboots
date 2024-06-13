@@ -18,7 +18,7 @@ public class AdicionadorLinkVenda implements AdicionadorLink<Venda> {
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(VendaControle.class)
-							.obterVendas())
+							.obterVenda(id))
 					.withSelfRel();
 			venda.add(linkProprio);
 		}
@@ -33,5 +33,17 @@ public class AdicionadorLinkVenda implements AdicionadorLink<Venda> {
 						.obterVendas())
 				.withSelfRel();
 		objeto.add(linkProprio);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(VendaControle.class)
+                        .atualizarVenda(null, id))
+                .withRel("AtualizarVenda:");
+        objeto.add(linkAtualizar);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(VendaControle.class)
+                        .excluirVenda(id))
+                .withRel("DeletarVenda:");
+        objeto.add(linkDeletar);
 	}
 }

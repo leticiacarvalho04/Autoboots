@@ -1,7 +1,7 @@
 package com.autobots.automanager.modelo.adicionadorLink;
 
 import com.autobots.automanager.controles.CredencialControle;
-import com.autobots.automanager.entidades.Credencial;
+import com.autobots.automanager.entidades.CredencialCodigoBarra;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.stereotype.Component;
@@ -9,24 +9,21 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AdicionadorLinkCredencial implements AdicionadorLink<Credencial> {
+public class AdicionadorLinkCredencialCodigo implements AdicionadorLink<CredencialCodigoBarra> {
 	
 	@Override
-	public void adicionarLink(List<Credencial> lista) {
-		for (Credencial credencial : lista) {
-			adicionarLinkParaListagem(credencial);
+	public void adicionarLink(List<CredencialCodigoBarra> lista) {
+		for (CredencialCodigoBarra credencialCodigoBarra : lista) {
+			adicionarLinkParaListagem(credencialCodigoBarra);
 		}
 	}
 	
 	@Override
-	public void adicionarLink(Credencial objeto) {
-		if (!objeto.getLinks().isEmpty()) {
-			return;
-		}
+	public void adicionarLink(CredencialCodigoBarra objeto) {
 		adicionarLinkParaDetalhe(objeto);
 	}
 	
-	public void adicionarLinkParaListagem(Credencial objeto) {
+	public void adicionarLinkParaListagem(CredencialCodigoBarra objeto) {
 		Long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
@@ -36,7 +33,7 @@ public class AdicionadorLinkCredencial implements AdicionadorLink<Credencial> {
 		objeto.add(linkProprio);
 	}
 	
-	public void adicionarLinkParaDetalhe(Credencial objeto) {
+	public void adicionarLinkParaDetalhe(CredencialCodigoBarra objeto) {
 		Long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
@@ -49,7 +46,7 @@ public class AdicionadorLinkCredencial implements AdicionadorLink<Credencial> {
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(CredencialControle.class)
 						.obterCredenciais())
-				.withRel("listarCredenciais");
+				.withRel("listarDocumentos");
 		objeto.add(linkListar);
 		
 		Link linkDeletar = WebMvcLinkBuilder

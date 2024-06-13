@@ -3,6 +3,7 @@ package com.autobots.automanager.controles;
 import com.autobots.automanager.dto.EmpresaDto;
 import com.autobots.automanager.entidades.*;
 import com.autobots.automanager.modelo.adicionadorLink.*;
+import com.autobots.automanager.modelo.atualizadores.EmpresaAtualizadora;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -71,59 +72,40 @@ public class EmpresaControle {
 	
 	@Autowired
 	private AdicionadorLinkCredencial adicionadorLinkCredencial;
+	@Autowired
+	private AdicionadorLinkVeiculo adicionadorLinkVeiculo;
 	
 	
 	@GetMapping("/{id}")
-	public Empresa obterEmpresaPorId(@PathVariable Long id) {
+	public Empresa obterEmpresa(@PathVariable Long id) {
 		Empresa empresa = empresaRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		adicionadorLink.adicionarLink(empresa);
 		return empresa;
 	}
 	
 	@GetMapping
-	public List<Empresa> obterEmpresa() {
+	public List<Empresa> obterEmpresas() {
 		List<Empresa> empresas = empresaRepositorio.findAll();
 		for (Empresa empresa : empresas) {
-			adicionadorLinkEmpresa.adicionarLink(empresa);
-			for (Telefone telefone : empresa.getTelefones()) {
-				adicionadorLinkTelefone.adicionarLink(telefone);
-			}
+			empresa.getTelefones().forEach(telefone -> adicionadorLinkTelefone.adicionarLink(telefone));
+			empresa.getUsuarios().forEach(usuario -> {
+				adicionadorLinkUsuario.adicionarLink(usuario);
+				usuario.getTelefones().forEach(telefone -> adicionadorLinkTelefone.adicionarLink(telefone));
+				usuario.getDocumentos().forEach(documento -> adicionadorLinkDocumento.adicionarLink(documento));
+				usuario.getEmails().forEach(email -> adicionadorLinkEmail.adicionarLink(email));
+				usuario.getCredenciais().forEach(credencial -> adicionadorLinkCredencial.adicionarLink(credencial));
+				usuario.getMercadorias().forEach(mercadoria -> adicionadorLinkMercadoria.adicionarLink(mercadoria));
+				usuario.getVendas().forEach(venda -> adicionadorLinkVenda.adicionarLink(venda));
+				usuario.getVeiculos().forEach(veiculo -> adicionadorLinkVeiculo.adicionarLink(veiculo));
+			});
+			empresa.getMercadorias().forEach(mercadoria -> adicionadorLinkMercadoria.adicionarLink(mercadoria));
+			empresa.getServicos().forEach(servico -> adicionadorLinkServico.adicionarLink(servico));
+			empresa.getVendas().forEach(venda -> adicionadorLinkVenda.adicionarLink(venda));
 			if (empresa.getEndereco() != null) {
 				adicionadorLinkEndereco.adicionarLink(empresa.getEndereco());
 			}
-			
-			for (Usuario usuario : empresa.getUsuarios()) {
-				adicionadorLinkUsuario.adicionarLink(usuario);
-				for (Telefone telefone : usuario.getTelefones()) {
-					adicionadorLinkTelefone.adicionarLink(telefone);
-				}
-				for (Documento documento : usuario.getDocumentos()) {
-					adicionadorLinkDocumento.adicionarLink(documento);
-				}
-				for (Email email : usuario.getEmails()) {
-					adicionadorLinkEmail.adicionarLink(email);
-				}
-				for (Credencial credencial : usuario.getCredenciais()) {
-					adicionadorLinkCredencial.adicionarLink(credencial);
-				}
-				for (Mercadoria mercadoria : usuario.getMercadorias()) {
-					adicionadorLinkMercadoria.adicionarLink(mercadoria);
-				}
-				for (Venda venda : usuario.getVendas()) {
-					adicionadorLinkVenda.adicionarLink(venda);
-				}
-			}
-			
-			for (Mercadoria mercadoria : empresa.getMercadorias()) {
-				adicionadorLinkMercadoria.adicionarLink(mercadoria);
-			}
-			for (Servico servico : empresa.getServicos()) {
-				adicionadorLinkServico.adicionarLink(servico);
-			}
-			for (Venda venda : empresa.getVendas()) {
-				adicionadorLinkVenda.adicionarLink(venda);
-			}
 		}
+		adicionadorLinkEmpresa.adicionarLink(empresas);
 		return empresas;
 	}
 	
@@ -135,13 +117,15 @@ public class EmpresaControle {
 		return new ResponseEntity<Empresa>(empresa, HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/atualizar")
-	public void atualizarEmpresa(@RequestBody EmpresaDto empresaDto) {
-		Empresa empresaExistente = empresaRepositorio.findById(empresaDto.getId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<Empresa> atualizarEmpresa(@RequestBody EmpresaDto empresaDto, @PathVariable Long id) {
+		Empresa empresaExistente = empresaRepositorio.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa not found"));
+		
 		Set<Telefone> telefonesAtualizados = telefoneRepositorio.findAllById(empresaDto.getTelefones())
 				.stream().collect(Collectors.toSet());
-		Endereco endereco = enderecoRepositorio.findById(empresaDto.getEndereco()).orElse(null);
+		Endereco endereco = enderecoRepositorio.findById(empresaDto.getEndereco())
+				.orElse(null);
 		Set<Usuario> usuarios = usuarioRepositorio.findAllById(empresaDto.getUsuarios())
 				.stream().collect(Collectors.toSet());
 		Set<Mercadoria> mercadorias = mercadoriaRepositorio.findAllById(empresaDto.getMercadorias())
@@ -150,29 +134,22 @@ public class EmpresaControle {
 				.stream().collect(Collectors.toSet());
 		Set<Venda> vendas = vendaRepositorio.findAllById(empresaDto.getVendas())
 				.stream().collect(Collectors.toSet());
-
-		empresaExistente.setRazaoSocial(empresaDto.getRazaoSocial());
-		empresaExistente.setNomeFantasia(empresaDto.getNomeFantasia());
-		empresaExistente.getTelefones().clear();
-		empresaExistente.getTelefones().addAll(telefonesAtualizados);
-		empresaExistente.setEndereco(endereco);
-		empresaExistente.setCadastro(empresaDto.getCadastro());
-		empresaExistente.setUsuarios(usuarios);
-		empresaExistente.setMercadorias(mercadorias);
-		empresaExistente.setServicos(servicos);
-		empresaExistente.setVendas(vendas);
-
+		
+		empresaDto.updateEntity(empresaExistente, telefonesAtualizados, endereco, usuarios, mercadorias, servicos, vendas);
+		
 		empresaRepositorio.save(empresaExistente);
 		adicionadorLink.adicionarLink(empresaExistente);
+		
+		return new ResponseEntity<>(empresaExistente, HttpStatus.OK);
 	}
 	
-	
 	@DeleteMapping("/excluir/{id}")
-	public void excluirEmpresa(@PathVariable Long id) {
+	public ResponseEntity<Empresa> excluirEmpresa(@PathVariable Long id) {
 		Empresa empresa = empresaRepositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		empresa.setUsuarios(null);
 		empresaRepositorio.save(empresa);
 		empresaRepositorio.delete(empresa);
+		return new ResponseEntity<>(empresa, HttpStatus.OK);
 	}
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class AdicionadorLinkServico implements AdicionadorLink<Servico> {
+public class  AdicionadorLinkServico implements AdicionadorLink<Servico> {
 	
 	@Override
 	public void adicionarLink(List<Servico> lista) {
@@ -18,7 +18,7 @@ public class AdicionadorLinkServico implements AdicionadorLink<Servico> {
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(ServicoControle.class)
-							.obterServico())
+							.obterServico(id))
 					.withSelfRel();
 			servico.add(linkProprio);
 		}
@@ -30,8 +30,20 @@ public class AdicionadorLinkServico implements AdicionadorLink<Servico> {
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(ServicoControle.class)
-						.obterServico())
-				.withSelfRel();
+						.obterServicos())
+				.withRel("ListarServicos");
 		objeto.add(linkProprio);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(ServicoControle.class)
+                        .atualizarServico(objeto, id))
+                .withRel("AtualizarServico:");
+        objeto.add(linkAtualizar);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(ServicoControle.class)
+                        .excluirServico(id))
+                .withRel("DeletarServico:");
+        objeto.add(linkDeletar);
 	}
 }

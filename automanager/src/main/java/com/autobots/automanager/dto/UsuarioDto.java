@@ -32,7 +32,7 @@ public class UsuarioDto {
 		return usuario;
 	}
 	
-	public void updateEntity(Usuario usuario, List<Documento> documentos, Endereco endereco, List<Telefone> telefones, List<Email> emails, List<PerfilUsuario> perfis, List<CredencialUsuarioSenha> credenciais, List<Mercadoria> mercadorias, List<Venda> vendas, List<Veiculo> veiculos) {
+	public void updateEntity(Usuario usuario, List<Documento> documentos, Endereco endereco, List<Telefone> telefones, List<Email> emails, List<PerfilUsuario> perfis, List<Credencial> credenciais, List<Mercadoria> mercadorias, List<Venda> vendas, List<Veiculo> veiculos) {
 		usuario.setNome(this.nome);
 		usuario.setNomeSocial(this.nomeSocial);
 		updateCollection(usuario.getDocumentos(), documentos);

@@ -2,6 +2,8 @@ package com.autobots.automanager.controles;
 
 import com.autobots.automanager.dto.VendaDto;
 import com.autobots.automanager.entidades.*;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkMercadoria;
+import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkServico;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkVenda;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,9 +40,13 @@ public class VendaControle {
 	
 	@Autowired
 	private AdicionadorLinkVenda adicionadorLink;
+	@Autowired
+	private AdicionadorLinkServico adicionadorLinkServico;
+	@Autowired
+	private AdicionadorLinkMercadoria adicionadorLinkMercadoria;
 	
 	@GetMapping("/{id}")
-	public Venda obterVendaPeloId(@PathVariable Long id) {
+	public Venda obterVenda(@PathVariable Long id) {
 		Venda venda = vendaRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		adicionadorLink.adicionarLink(venda);
 		return venda;
@@ -49,10 +55,11 @@ public class VendaControle {
 	@GetMapping
 	public List<Venda> obterVendas() {
 		List<Venda> vendas = vendaRepositorio.findAll();
-		if (vendas.isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Não foram encontradas vendas.");
+		for (Venda venda : vendas) {
+			venda.getServicos().forEach(servico -> adicionadorLinkServico.adicionarLink(servico));
+			venda.getMercadorias().forEach(mercadoria -> adicionadorLinkMercadoria.adicionarLink(mercadoria));
 		}
-		vendas.forEach(adicionadorLink::adicionarLink);
+		adicionadorLink.adicionarLink(vendas);
 		return vendas;
 	}
 	
@@ -63,7 +70,6 @@ public class VendaControle {
 		Venda venda = vendaDto.cadastro();
 		empresa.getVendas().add(venda);
 		vendaRepositorio.save(venda);
-		adicionadorLink.adicionarLink(venda);
 		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
 	}
 	
@@ -79,13 +85,12 @@ public class VendaControle {
 		venda.setFuncionario(funcionario);
 		
 		vendaRepositorio.save(venda);
-		adicionadorLink.adicionarLink(venda);
 		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
 	}
 	
-	@PutMapping("/atualizar")
-	public void atualizarVenda(@RequestBody VendaDto vendaDto) {
-		Venda vendaExistente = vendaRepositorio.findById(vendaDto.getId())
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<VendaDto> atualizarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long id) {
+		Venda vendaExistente = vendaRepositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		
 		Usuario cliente = usuarioRepositorio.findById(vendaDto.getClienteId())
@@ -110,10 +115,11 @@ public class VendaControle {
 		vendaExistente.setVeiculo(veiculo);
 		
 		vendaRepositorio.save(vendaExistente);
+		return new ResponseEntity<VendaDto>(vendaDto,HttpStatus.OK);
 	}
 
 	@DeleteMapping("/excluir/{id}")
-	public void excluirVenda(@PathVariable Long id) {
+	public ResponseEntity<Venda> excluirVenda(@PathVariable Long id) {
 		Venda venda = vendaRepositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Empresa> empresas = empresaRepositorio.findAll();
@@ -124,5 +130,6 @@ public class VendaControle {
 			}
 		}
 		vendaRepositorio.delete(venda);
+		return new ResponseEntity<>(venda,HttpStatus.OK);
 	}
 }

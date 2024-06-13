@@ -18,7 +18,7 @@ public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria> {
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(MercadoriaControle.class)
-							.obterMercadoria())
+							.obterMercadoria(id))
 					.withSelfRel();
 			mercadoria.add(linkProprio);
 		}
@@ -30,8 +30,20 @@ public class AdicionadorLinkMercadoria implements AdicionadorLink<Mercadoria> {
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(MercadoriaControle.class)
-						.obterMercadoria())
+						.obterMercadorias())
 				.withSelfRel();
-		objeto.add(linkProprio);
+		Link linkDel = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(MercadoriaControle.class)
+                        .excluirMercadoria(id))
+                .withRel("deletarMercadoria");
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(MercadoriaControle.class)
+                        .atualizarMercadoria(objeto, id))
+				.withRel("atualizarMercadoria");
+        objeto.add(linkProprio);
+		objeto.add(linkDel);
+		objeto.add(linkAtualizar);
 	}
 }

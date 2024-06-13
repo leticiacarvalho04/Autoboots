@@ -27,6 +27,29 @@ public class EmpresaDto {
 		return empresa;
 	}
 	
+	public void updateEntity(Empresa empresa, Set<Telefone> telefones, Endereco endereco, Set<Usuario> usuarios, Set<Mercadoria> mercadorias, Set<Servico> servicos, Set<Venda> vendas) {
+		empresa.setRazaoSocial(this.razaoSocial);
+		empresa.setNomeFantasia(this.nomeFantasia);
+		empresa.setCadastro(this.cadastro);
+		
+		empresa.getTelefones().clear();
+		empresa.getTelefones().addAll(telefones);
+		
+		empresa.setEndereco(endereco);
+		
+		empresa.getUsuarios().clear();
+		empresa.getUsuarios().addAll(usuarios);
+		
+		empresa.getMercadorias().clear();
+		empresa.getMercadorias().addAll(mercadorias);
+		
+		empresa.getServicos().clear();
+		empresa.getServicos().addAll(servicos);
+		
+		empresa.getVendas().clear();
+		empresa.getVendas().addAll(vendas);
+	}
+	
 	public Empresa toEntity(Set<Telefone> telefones, Endereco endereco, Set<Usuario> usuarios, Set<Mercadoria> mercadorias, Set<Servico> servicos, Set<Venda> vendas) {
 		Empresa empresa = new Empresa();
 		empresa.setRazaoSocial(this.razaoSocial);

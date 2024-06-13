@@ -45,13 +45,14 @@ public class ServicoControle {
 	private AdicionadorLinkVenda adicionadorLinkVenda;
 	
 	@GetMapping("/{id}")
-	public Servico buscarServicoPeloId(Long id){
+	public Servico obterServico(@PathVariable Long id){
 		Servico servico = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		adicionadorLink.adicionarLink(servico);
 		return servico;
 	}
 	
 	@GetMapping
-	public List<Servico> obterServico(){
+	public List<Servico> obterServicos(){
         List<Servico> servico = repositorio.findAll();
 		adicionadorLink.adicionarLink(servico);
         return servico;
@@ -62,9 +63,7 @@ public class ServicoControle {
 		Venda venda = vendaRepositorio.getById(idVenda);
 		servico = repositorio.save(servico);
 		venda.getServicos().add(servico);
-		adicionadorLinkVenda.adicionarLink(venda);
 		repositorio.save(servico);
-		adicionadorLink.adicionarLink(servico);
 		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
 	}
 	
@@ -73,22 +72,25 @@ public class ServicoControle {
 		Empresa empresa = empresaRepositorio.getById(idEmpresa);
 		servico = repositorio.save(servico);
 		empresa.getServicos().add(servico);
-		adicionadorLinkEmpresa.adicionarLink(empresa);
 		repositorio.save(servico);
-		adicionadorLink.adicionarLink(servico);
 		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/atualizar")
-	public void atualizarServico(@RequestBody Servico servico) {
-		Servico servicoId = repositorio.getById(servico.getId());
-        ServicoAtualizador atualizador = new ServicoAtualizador();
-        atualizador.atualizar(servicoId, servico);
-        repositorio.save(servico);
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<Servico> atualizarServico(@RequestBody Servico servico, @PathVariable Long id) {
+		Servico servicoExistente = repositorio.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		
+		ServicoAtualizador atualizador = new ServicoAtualizador();
+		atualizador.atualizar(servicoExistente, servico);
+		
+		Servico servicoAtualizado = repositorio.save(servicoExistente);
+		
+		return new ResponseEntity<>(servicoAtualizado, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/excluir/{id}")
-	public void excluirServico(@PathVariable Long id) {
+	public ResponseEntity<Servico> excluirServico(@PathVariable Long id) {
 		Servico servico = repositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Venda> vendas = vendaRepositorio.findAll();
@@ -104,5 +106,6 @@ public class ServicoControle {
 			}
 		}
 		repositorio.delete(servico);
+		return new ResponseEntity<Servico>(servico, HttpStatus.OK);
 	}
 }

@@ -54,14 +54,14 @@ public class MercadoriaControle {
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
 	@GetMapping("/{id}")
-	public Mercadoria buscarPorId(Long id) {
+	public Mercadoria obterMercadoria(@PathVariable Long id) {
         Mercadoria mercadoria = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		adicionadorLink.adicionarLink(mercadoria);
 		return mercadoria;
     }
 	
 	@GetMapping
-	public List<Mercadoria> obterMercadoria(){
+	public List<Mercadoria> obterMercadorias(){
         List<Mercadoria> mercadoria = repositorio.findAll();
 		adicionadorLink.adicionarLink(mercadoria);
         return mercadoria;
@@ -72,9 +72,7 @@ public class MercadoriaControle {
 		Venda venda = vendaRepositorio.getById(idVenda);
 		venda.getMercadorias().add(mercadoria);
 		vendaRepositorio.save(venda);
-		adicionadorLinkVenda.adicionarLink(venda);
 		repositorio.save(mercadoria);
-		adicionadorLink.adicionarLink(mercadoria);
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
@@ -84,8 +82,6 @@ public class MercadoriaControle {
 		empresa.getMercadorias().add(mercadoria);
 		empresaRepositorio.save(empresa);
 		repositorio.save(mercadoria);
-		adicionadorLinkEmpresa.adicionarLink(empresa);
-		adicionadorLink.adicionarLink(mercadoria);
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
@@ -94,22 +90,22 @@ public class MercadoriaControle {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 		usuario.getMercadorias().add(mercadoria);
 		usuarioRepositorio.save(usuario);
-		adicionadorLinkUsuario.adicionarLink(usuario);
 		repositorio.save(mercadoria);
-		adicionadorLink.adicionarLink(mercadoria);
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
-	@PutMapping("/atualizar")
-	public void atualizarMercadoria(@RequestBody Mercadoria mercadoria) {
-        Mercadoria mercadoriaId = repositorio.getById(mercadoria.getId());
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<Mercadoria> atualizarMercadoria(@RequestBody Mercadoria mercadoria, @PathVariable Long id) {
+		Mercadoria mercadoriaExistente = repositorio.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Mercadoria not found"));
 		MercadoriaAtualizadora atualizador = new MercadoriaAtualizadora();
-        atualizador.atualizar(mercadoriaId, mercadoria);
-        repositorio.save(mercadoria);
-    }
+		atualizador.atualizar(mercadoriaExistente, mercadoria);
+		repositorio.save(mercadoriaExistente);
+		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
+	}
 	
 	@DeleteMapping("/excluir/{id}")
-	public void excluirMercadoria(@PathVariable Long id) {
+	public ResponseEntity<Mercadoria> excluirMercadoria(@PathVariable Long id) {
 		Mercadoria mercadoria = repositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Usuario> usuarios = usuarioRepositorio.findAll();
@@ -119,7 +115,7 @@ public class MercadoriaControle {
 				usuarioRepositorio.save(usuario);
 			}
 		}
-
 		repositorio.delete(mercadoria);
+		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.OK);
 	}
 }

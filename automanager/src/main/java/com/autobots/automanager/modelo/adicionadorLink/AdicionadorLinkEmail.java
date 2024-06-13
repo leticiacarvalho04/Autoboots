@@ -17,7 +17,7 @@ public class AdicionadorLinkEmail implements AdicionadorLink<Email> {
 	        Link linkProprio = WebMvcLinkBuilder
 			        .linkTo(WebMvcLinkBuilder
 			                .methodOn(EmailControle.class)
-			                .obterEmail())
+			                .obterEmail(id))
 			        .withSelfRel();
 			email.add(linkProprio);
         }
@@ -25,11 +25,24 @@ public class AdicionadorLinkEmail implements AdicionadorLink<Email> {
 	
 	@Override
 	public void adicionarLink(Email objeto){
+		Long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
                 .linkTo(WebMvcLinkBuilder
                         .methodOn(EmailControle.class)
-                        .obterEmail())
+                        .obterEmails())
                 .withRel("emails");
         objeto.add(linkProprio);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(EmailControle.class)
+                        .excluirEmail(id))
+                .withRel("deletarEmail");
+        objeto.add(linkDeletar);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(EmailControle.class)
+                        .atualizarEmail(null, id))
+               .withRel("atualizarEmail");
+        objeto.add(linkAtualizar);
 	}
 }

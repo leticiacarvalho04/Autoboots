@@ -14,11 +14,11 @@ public class AdicionadorLinkTelefone implements AdicionadorLink<Telefone> {
 	@Override
 	public void adicionarLink(List<Telefone> lista) {
 		for (Telefone telefone : lista) {
-			long id = telefone.getId();
+			Long id = telefone.getId();
 			Link linkProprio = WebMvcLinkBuilder
 					.linkTo(WebMvcLinkBuilder
 							.methodOn(TelefoneControle.class)
-							.obterTelefone())
+							.obterTelefone(id))
 					.withSelfRel();
 			telefone.add(linkProprio);
 		}
@@ -26,12 +26,24 @@ public class AdicionadorLinkTelefone implements AdicionadorLink<Telefone> {
 	
 	@Override
 	public void adicionarLink(Telefone objeto) {
-		long id = objeto.getId();
+		Long id = objeto.getId();
 		Link linkProprio = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
 						.methodOn(TelefoneControle.class)
-						.obterTelefone())
-				.withSelfRel();
+						.obterTelefones())
+				.withRel("ListarTodosOsTelefones");
 		objeto.add(linkProprio);
+		Link linkAtualizar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(TelefoneControle.class)
+                        .atualizarTelefone(objeto, id))
+                .withRel("AtualizarTelefone:");
+        objeto.add(linkAtualizar);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+                        .methodOn(TelefoneControle.class)
+                        .excluirTelefone(id))
+                .withRel("DeletarTelefone:");
+        objeto.add(linkDeletar);
 	}
 }

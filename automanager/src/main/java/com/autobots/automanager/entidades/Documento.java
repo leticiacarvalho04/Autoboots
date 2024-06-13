@@ -14,8 +14,7 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.util.Date;
 
-@Getter
-@Setter
+@Data
 @Entity
 public class Documento extends RepresentationModel<Documento> {
 	@Id
