@@ -45,8 +45,10 @@ public class VeiculoControle {
 	
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
+	
 	@Autowired
 	private AdicionadorLinkMercadoria adicionadorLinkMercadoria;
+	
 	@Autowired
 	private AdicionadorLinkServico adicionadorLinkServico;
 	

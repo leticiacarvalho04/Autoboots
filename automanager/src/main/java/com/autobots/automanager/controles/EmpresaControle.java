@@ -72,9 +72,9 @@ public class EmpresaControle {
 	
 	@Autowired
 	private AdicionadorLinkCredencial adicionadorLinkCredencial;
+	
 	@Autowired
 	private AdicionadorLinkVeiculo adicionadorLinkVeiculo;
-	
 	
 	@GetMapping("/{id}")
 	public Empresa obterEmpresa(@PathVariable Long id) {
@@ -113,7 +113,6 @@ public class EmpresaControle {
 	public ResponseEntity<Empresa> cadastrarEmpresa(@RequestBody EmpresaDto empresaDto) {
 		Empresa empresa = empresaDto.cadastro();
 		empresaRepositorio.save(empresa);
-		adicionadorLink.adicionarLink(empresa);
 		return new ResponseEntity<Empresa>(empresa, HttpStatus.CREATED);
 	}
 	
@@ -138,8 +137,6 @@ public class EmpresaControle {
 		empresaDto.updateEntity(empresaExistente, telefonesAtualizados, endereco, usuarios, mercadorias, servicos, vendas);
 		
 		empresaRepositorio.save(empresaExistente);
-		adicionadorLink.adicionarLink(empresaExistente);
-		
 		return new ResponseEntity<>(empresaExistente, HttpStatus.OK);
 	}
 	

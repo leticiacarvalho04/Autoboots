@@ -89,7 +89,7 @@ public class VendaControle {
 	}
 	
 	@PutMapping("/atualizar/{id}")
-	public ResponseEntity<VendaDto> atualizarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long id) {
+	public ResponseEntity<Venda> atualizarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long id) {
 		Venda vendaExistente = vendaRepositorio.findById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		
@@ -115,7 +115,7 @@ public class VendaControle {
 		vendaExistente.setVeiculo(veiculo);
 		
 		vendaRepositorio.save(vendaExistente);
-		return new ResponseEntity<VendaDto>(vendaDto,HttpStatus.OK);
+		return new ResponseEntity<Venda>(vendaExistente,HttpStatus.OK);
 	}
 
 	@DeleteMapping("/excluir/{id}")

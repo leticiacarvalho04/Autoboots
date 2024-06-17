@@ -101,7 +101,7 @@ public class MercadoriaControle {
 		MercadoriaAtualizadora atualizador = new MercadoriaAtualizadora();
 		atualizador.atualizar(mercadoriaExistente, mercadoria);
 		repositorio.save(mercadoriaExistente);
-		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
+		return new ResponseEntity<Mercadoria>(mercadoriaExistente, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/excluir/{id}")

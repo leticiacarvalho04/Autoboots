@@ -136,10 +136,8 @@ public class CredencialControle {
 		}
 		
 		repositorio.save(credencialExistente);
-		adicionadorLink.adicionarLink(credencialExistente);
 		usuario.getCredenciais().add(credencialExistente);
 		usuarioRepositorio.save(usuario);
-		adicionadorLinkUsuario.adicionarLink(usuario);
 		
 		return new ResponseEntity<>(credencialAtualizada, HttpStatus.OK);
 	}

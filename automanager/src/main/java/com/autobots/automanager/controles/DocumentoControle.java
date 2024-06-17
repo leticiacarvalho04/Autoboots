@@ -81,7 +81,6 @@ public class DocumentoControle {
 			if(usuario.getDocumentos().contains(documento)){
 				usuario.getDocumentos().remove(documento);
                 usuarioRepositorio.save(usuario);
-				adicionadorLinkUsuario.adicionarLink(usuario);
 			}
 		}
 		repositorio.delete(documento);
