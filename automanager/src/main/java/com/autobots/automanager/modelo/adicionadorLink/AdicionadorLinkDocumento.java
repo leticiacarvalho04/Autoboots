@@ -22,7 +22,7 @@ public class AdicionadorLinkDocumento implements AdicionadorLink<Documento> {
 			documento.add(linkProprio);
 		}
 	}
-
+	
 	@Override
 	public void adicionarLink(Documento objeto) {
 		Long id = objeto.getId();
@@ -34,15 +34,15 @@ public class AdicionadorLinkDocumento implements AdicionadorLink<Documento> {
 		objeto.add(linkProprio);
 		Link linkDeletar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-					.methodOn(DocumentoControle.class)
-				    .excluirDocumento(id))
+						.methodOn(DocumentoControle.class)
+						.excluirDocumento(id))
 				.withRel("deletar");
 		objeto.add(linkDeletar);
 		Link linkAtualizar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(DocumentoControle.class)
-                        .atualizarDocumento(objeto, id))
-                .withRel("atualizar");
-        objeto.add(linkAtualizar);
+						.methodOn(DocumentoControle.class)
+						.atualizarDocumento(objeto, id))
+				.withRel("atualizar");
+		objeto.add(linkAtualizar);
 	}
 }

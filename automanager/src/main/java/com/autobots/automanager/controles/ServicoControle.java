@@ -14,6 +14,7 @@ import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -44,6 +45,7 @@ public class ServicoControle {
 	@Autowired
 	private AdicionadorLinkVenda adicionadorLinkVenda;
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE','VENDEDOR')")
 	@GetMapping("/{id}")
 	public Servico obterServico(@PathVariable Long id){
 		Servico servico = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -51,13 +53,15 @@ public class ServicoControle {
 		return servico;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE','VENDEDOR')")
 	@GetMapping
 	public List<Servico> obterServicos(){
-        List<Servico> servico = repositorio.findAll();
+		List<Servico> servico = repositorio.findAll();
 		adicionadorLink.adicionarLink(servico);
-        return servico;
-    }
+		return servico;
+	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/venda/{idVenda}")
 	public ResponseEntity<Servico> cadastrarServico(@RequestBody Servico servico, @PathVariable Long idVenda) {
 		Venda venda = vendaRepositorio.getById(idVenda);
@@ -67,6 +71,7 @@ public class ServicoControle {
 		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
 	public ResponseEntity<Servico> cadastrarServicoEmpresa(@RequestBody Servico servico, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.getById(idEmpresa);
@@ -76,6 +81,7 @@ public class ServicoControle {
 		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Servico> atualizarServico(@RequestBody Servico servico, @PathVariable Long id) {
 		Servico servicoExistente = repositorio.findById(id)
@@ -89,6 +95,7 @@ public class ServicoControle {
 		return new ResponseEntity<>(servicoAtualizado, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Servico> excluirServico(@PathVariable Long id) {
 		Servico servico = repositorio.findById(id)

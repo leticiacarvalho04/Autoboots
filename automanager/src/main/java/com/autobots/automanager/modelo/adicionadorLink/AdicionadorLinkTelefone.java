@@ -35,15 +35,15 @@ public class AdicionadorLinkTelefone implements AdicionadorLink<Telefone> {
 		objeto.add(linkProprio);
 		Link linkAtualizar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(TelefoneControle.class)
-                        .atualizarTelefone(objeto, id))
-                .withRel("AtualizarTelefone:");
-        objeto.add(linkAtualizar);
+						.methodOn(TelefoneControle.class)
+						.atualizarTelefone(objeto, id))
+				.withRel("AtualizarTelefone:");
+		objeto.add(linkAtualizar);
 		Link linkDeletar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(TelefoneControle.class)
-                        .excluirTelefone(id))
-                .withRel("DeletarTelefone:");
-        objeto.add(linkDeletar);
+						.methodOn(TelefoneControle.class)
+						.excluirTelefone(id))
+				.withRel("DeletarTelefone:");
+		objeto.add(linkDeletar);
 	}
 }

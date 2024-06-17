@@ -1,7 +1,6 @@
 package com.autobots.automanager.entidades;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
@@ -29,11 +28,11 @@ public class Venda extends RepresentationModel<Venda> {
 	private String identificacao;
 	
 	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference(value = "cliente-reference")
+	@JsonBackReference
 	private Usuario cliente;
 	
 	@ManyToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference(value = "funcionario-reference")
+	@JsonBackReference
 	private Usuario funcionario;
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
@@ -45,6 +44,6 @@ public class Venda extends RepresentationModel<Venda> {
 	private Set<Servico> servicos = new HashSet<>();
 	
 	@OneToOne(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH })
-	@JsonBackReference(value = "veiculo-reference")
+	@JsonBackReference
 	private Veiculo veiculo;
 }

@@ -1,8 +1,10 @@
 package com.autobots.automanager;
 
 import java.util.Date;
+import java.util.UUID;
 
 import com.autobots.automanager.entidades.*;
+import com.autobots.automanager.enumeracoes.Perfil;
 import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.autobots.automanager.enumeracoes.PerfilUsuario;
 import com.autobots.automanager.enumeracoes.TipoDocumento;
 import com.autobots.automanager.enumeracoes.TipoVeiculo;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
 public class AutomanagerApplication implements CommandLineRunner {
@@ -24,6 +27,7 @@ public class AutomanagerApplication implements CommandLineRunner {
 	
 	@Override
 	public void run(String... args) throws Exception {
+		BCryptPasswordEncoder codificador = new BCryptPasswordEncoder();
 		
 		Empresa empresa = new Empresa();
 		empresa.setRazaoSocial("Car service toyota ltda");
@@ -49,7 +53,7 @@ public class AutomanagerApplication implements CommandLineRunner {
 		Usuario funcionario = new Usuario();
 		funcionario.setNome("Pedro Alcântara de Bragança e Bourbon");
 		funcionario.setNomeSocial("Dom Pedro");
-		funcionario.getPerfis().add(PerfilUsuario.FUNCIONARIO);
+		funcionario.getPerfis().add(Perfil.ROLE_ADMIN);
 		
 		Email emailFuncionario = new Email();
 		emailFuncionario.setEndereco("a@a.com");
@@ -84,7 +88,8 @@ public class AutomanagerApplication implements CommandLineRunner {
 		CredencialUsuarioSenha credencialFuncionario = new CredencialUsuarioSenha();
 		credencialFuncionario.setInativo(false);
 		credencialFuncionario.setNomeUsuario("dompedrofuncionario");
-		credencialFuncionario.setSenha("123456");
+		String senhaFuncionario = "123456";
+		credencialFuncionario.setSenha(codificador.encode(senhaFuncionario));
 		credencialFuncionario.setCriacao(new Date());
 		credencialFuncionario.setUltimoAcesso(new Date());
 		
@@ -93,7 +98,7 @@ public class AutomanagerApplication implements CommandLineRunner {
 		Usuario fornecedor = new Usuario();
 		fornecedor.setNome("Componentes varejo de partes automotivas ltda");
 		fornecedor.setNomeSocial("Loja do carro, vendas de componentes automotivos");
-		fornecedor.getPerfis().add(PerfilUsuario.FORNECEDOR);
+		fornecedor.getPerfis().add(Perfil.ROLE_VENDEDOR);
 		
 		Email emailFornecedor = new Email();
 		emailFornecedor.setEndereco("f@f.com");
@@ -103,7 +108,8 @@ public class AutomanagerApplication implements CommandLineRunner {
 		CredencialUsuarioSenha credencialFornecedor = new CredencialUsuarioSenha();
 		credencialFornecedor.setInativo(false);
 		credencialFornecedor.setNomeUsuario("dompedrofornecedor");
-		credencialFornecedor.setSenha("123456");
+		String senha = "123456";
+		credencialFornecedor.setSenha(codificador.encode(senha));
 		credencialFornecedor.setCriacao(new Date());
 		credencialFornecedor.setUltimoAcesso(new Date());
 		
@@ -144,7 +150,7 @@ public class AutomanagerApplication implements CommandLineRunner {
 		Usuario cliente = new Usuario();
 		cliente.setNome("Pedro Alcântara de Bragança e Bourbon");
 		cliente.setNomeSocial("Dom pedro cliente");
-		cliente.getPerfis().add(PerfilUsuario.CLIENTE);
+		cliente.getPerfis().add(Perfil.ROLE_CLIENTE);
 		
 		Email emailCliente = new Email();
 		emailCliente.setEndereco("c@c.com");
@@ -248,6 +254,5 @@ public class AutomanagerApplication implements CommandLineRunner {
 		empresa.getVendas().add(venda2);
 		
 		repositorioEmpresa.save(empresa);
-		
 	}
 }

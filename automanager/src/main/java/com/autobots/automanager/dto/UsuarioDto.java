@@ -1,7 +1,7 @@
 package com.autobots.automanager.dto;
 
 import com.autobots.automanager.entidades.*;
-import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.enumeracoes.Perfil;
 import lombok.Data;
 
 import java.util.List;
@@ -21,9 +21,9 @@ public class UsuarioDto {
 	private Set<Long> mercadorias;
 	private Set<Long> vendas;
 	private Set<Long> veiculos;
-	private List<PerfilUsuario> perfis;
+	private List<Perfil> perfis;
 	
-	public Usuario toEntity(List<PerfilUsuario> perfis) {
+	public Usuario toEntity(List<Perfil> perfis) {
 		Usuario usuario = new Usuario();
 		usuario.setId(this.id);
 		usuario.setNome(this.nome);
@@ -32,7 +32,7 @@ public class UsuarioDto {
 		return usuario;
 	}
 	
-	public void updateEntity(Usuario usuario, List<Documento> documentos, Endereco endereco, List<Telefone> telefones, List<Email> emails, List<PerfilUsuario> perfis, List<Credencial> credenciais, List<Mercadoria> mercadorias, List<Venda> vendas, List<Veiculo> veiculos) {
+	public void updateEntity(Usuario usuario, List<Documento> documentos, Endereco endereco, List<Telefone> telefones, List<Email> emails, List<Perfil> perfis, List<Credencial> credenciais, List<Mercadoria> mercadorias, List<Venda> vendas, List<Veiculo> veiculos) {
 		usuario.setNome(this.nome);
 		usuario.setNomeSocial(this.nomeSocial);
 		updateCollection(usuario.getDocumentos(), documentos);

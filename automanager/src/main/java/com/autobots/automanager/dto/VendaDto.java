@@ -26,9 +26,9 @@ public class VendaDto {
 	
 	public Venda cadastro(){
 		Venda venda = new Venda();
-        venda.setCadastro(this.cadastro);
-        venda.setIdentificacao(this.identificacao);
-        return venda;
+		venda.setCadastro(this.cadastro);
+		venda.setIdentificacao(this.identificacao);
+		return venda;
 	}
 	
 	public Venda toEntity(Usuario cliente, Usuario funcionario, List<Mercadoria> mercadorias, List<Servico> servicos, Veiculo veiculo) {

@@ -13,6 +13,7 @@ import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,6 +41,7 @@ public class TelefoneControle {
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
 	public ResponseEntity<Telefone> cadastrarTelefoneEmpresa(@RequestBody Telefone telefone, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.findById(idEmpresa).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -49,6 +51,7 @@ public class TelefoneControle {
 		return new ResponseEntity<>(telefone, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Telefone> cadastrarTelefoneUsuario(@RequestBody Telefone telefone, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -58,6 +61,7 @@ public class TelefoneControle {
 		return new ResponseEntity<>(telefone, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Telefone> obterTelefone(@PathVariable Long id){
 		Telefone telefones = repositorio.findById(id)
@@ -66,13 +70,15 @@ public class TelefoneControle {
 		return new ResponseEntity<>(telefones, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<Telefone> obterTelefones(){
 		List<Telefone> telefones = repositorio.findAll();
 		adicionadorLink.adicionarLink(telefones);
 		return telefones;
 	}
-
+	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Telefone> atualizarTelefone(@RequestBody Telefone telefone, @PathVariable Long id) {
 		Telefone novoTelefone = repositorio.getById(id);
@@ -81,15 +87,23 @@ public class TelefoneControle {
 		repositorio.save(telefone);
 		return new ResponseEntity<Telefone>(telefone,HttpStatus.CREATED);
 	}
-
+	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Telefone> excluirTelefone(@PathVariable Long id) {
-		Telefone telefone = repositorio.getById(id);
+		Telefone telefone = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Empresa> empresas = empresaRepositorio.findAll();
 		for(Empresa e : empresas){
 			if(e.getTelefones().contains(telefone)){
 				e.getTelefones().remove(telefone);
 				empresaRepositorio.save(e);
+			}
+		}
+		List<Usuario> usuarios = usuarioRepositorio.findAll();
+		for (Usuario usuario : usuarios) {
+			if (usuario.getMercadorias().contains(telefone)) {
+				usuario.getMercadorias().remove(telefone);
+				usuarioRepositorio.save(usuario);
 			}
 		}
 		repositorio.delete(telefone);

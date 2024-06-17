@@ -17,6 +17,7 @@ import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -53,20 +54,23 @@ public class MercadoriaControle {
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE','VENDEDOR')")
 	@GetMapping("/{id}")
 	public Mercadoria obterMercadoria(@PathVariable Long id) {
-        Mercadoria mercadoria = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Mercadoria mercadoria = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		adicionadorLink.adicionarLink(mercadoria);
 		return mercadoria;
-    }
+	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE','VENDEDOR')")
 	@GetMapping
 	public List<Mercadoria> obterMercadorias(){
-        List<Mercadoria> mercadoria = repositorio.findAll();
+		List<Mercadoria> mercadoria = repositorio.findAll();
 		adicionadorLink.adicionarLink(mercadoria);
-        return mercadoria;
-    }
+		return mercadoria;
+	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/venda/{idVenda}")
 	public ResponseEntity<Mercadoria> cadastrarMercadoria(@RequestBody Mercadoria mercadoria, @PathVariable Long idVenda) {
 		Venda venda = vendaRepositorio.getById(idVenda);
@@ -76,6 +80,7 @@ public class MercadoriaControle {
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
 	public ResponseEntity<Mercadoria> cadastrarMercadoriaEmpresa(@RequestBody Mercadoria mercadoria, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.findById(idEmpresa).orElseThrow(() -> new RuntimeException("Empresa não encontrada"));
@@ -85,6 +90,7 @@ public class MercadoriaControle {
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Mercadoria> cadastrarMercadoriaUsuario(@RequestBody Mercadoria mercadoria, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -94,6 +100,7 @@ public class MercadoriaControle {
 		return new ResponseEntity<Mercadoria>(mercadoria, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Mercadoria> atualizarMercadoria(@RequestBody Mercadoria mercadoria, @PathVariable Long id) {
 		Mercadoria mercadoriaExistente = repositorio.findById(id)
@@ -101,9 +108,10 @@ public class MercadoriaControle {
 		MercadoriaAtualizadora atualizador = new MercadoriaAtualizadora();
 		atualizador.atualizar(mercadoriaExistente, mercadoria);
 		repositorio.save(mercadoriaExistente);
-		return new ResponseEntity<Mercadoria>(mercadoriaExistente, HttpStatus.OK);
+		return new ResponseEntity<Mercadoria>(mercadoriaExistente, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Mercadoria> excluirMercadoria(@PathVariable Long id) {
 		Mercadoria mercadoria = repositorio.findById(id)

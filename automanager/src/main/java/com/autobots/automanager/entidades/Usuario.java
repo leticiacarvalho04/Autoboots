@@ -1,6 +1,6 @@
 package com.autobots.automanager.entidades;
 
-import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.enumeracoes.Perfil;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class Usuario extends RepresentationModel<Usuario> {
 	
 	@ElementCollection(fetch = FetchType.EAGER)
 	@Enumerated(EnumType.STRING)
-	private Set<PerfilUsuario> perfis = new HashSet<>();
+	private Set<Perfil> perfis = new HashSet<>();
 	
 	@OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonManagedReference

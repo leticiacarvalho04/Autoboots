@@ -1,9 +1,9 @@
 package com.autobots.automanager.dto;
 
-import com.autobots.automanager.entidades.Credencial;
 import com.autobots.automanager.entidades.CredencialCodigoBarra;
 import com.autobots.automanager.entidades.CredencialUsuarioSenha;
 import lombok.Data;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Date;
 
@@ -19,10 +19,10 @@ public class CredencialDto {
 	
 	public CredencialCodigoBarra toEntityCodigoBarra() {
 		CredencialCodigoBarra credencial = new CredencialCodigoBarra();
-		credencial.setCodigo(this.codigo);
-		credencial.setCriacao(this.criacao != null ? this.criacao : new Date());
-		credencial.setUltimoAcesso(this.ultimoAcesso);
-		credencial.setInativo(this.inativo);
+		credencial.setCodigo(codigo);
+		credencial.setCriacao(criacao != null ? criacao : new Date());
+		credencial.setUltimoAcesso(ultimoAcesso);
+		credencial.setInativo(inativo);
 		return credencial;
 	}
 	
@@ -44,10 +44,13 @@ public class CredencialDto {
 	}
 	
 	public void updateEntityUsuarioSenha(CredencialUsuarioSenha credencial) {
+		BCryptPasswordEncoder codificador = new BCryptPasswordEncoder();
+		
 		credencial.setNomeUsuario(this.nomeUsuario);
-        credencial.setSenha(this.senha);
-        credencial.setCriacao(this.criacao!= null? this.criacao : new Date());
-        credencial.setUltimoAcesso(this.ultimoAcesso);
-        credencial.setInativo(this.inativo);
+		credencial.setSenha(codificador.encode(this.senha));
+		credencial.setCriacao(this.criacao != null ? this.criacao : new Date());
+		credencial.setUltimoAcesso(this.ultimoAcesso);
+		credencial.setInativo(this.inativo);
 	}
+	
 }

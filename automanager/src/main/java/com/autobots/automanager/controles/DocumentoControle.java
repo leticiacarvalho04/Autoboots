@@ -10,10 +10,10 @@ import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.print.Doc;
 import java.util.List;
 
 @RestController
@@ -32,6 +32,7 @@ public class DocumentoControle {
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Documento> cadastrarDocumentoUsuario(@RequestBody Documento documento, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
@@ -41,12 +42,13 @@ public class DocumentoControle {
 		return new ResponseEntity<>(documentoSalvo, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Documento> obterDocumento(@PathVariable Long id) {
 		Documento documento = repositorio.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        adicionadorLink.adicionarLink(documento);
-        return new ResponseEntity<>(documento, HttpStatus.OK);
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		adicionadorLink.adicionarLink(documento);
+		return new ResponseEntity<>(documento, HttpStatus.OK);
 	}
 	
 	@GetMapping
@@ -56,8 +58,9 @@ public class DocumentoControle {
 		return documentos;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{idUsuario}")
-		public ResponseEntity<Documento> atualizarDocumento(@RequestBody Documento doc, @PathVariable Long idUsuario) {
+	public ResponseEntity<Documento> atualizarDocumento(@RequestBody Documento doc, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario not found"));
 		
@@ -73,6 +76,7 @@ public class DocumentoControle {
 		return new ResponseEntity<>(documentoExistente,HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Documento> excluirDocumento(@PathVariable Long id) {
 		Documento documento = repositorio.getById(id);
@@ -80,7 +84,8 @@ public class DocumentoControle {
 		for(Usuario usuario : usuarios){
 			if(usuario.getDocumentos().contains(documento)){
 				usuario.getDocumentos().remove(documento);
-                usuarioRepositorio.save(usuario);
+				usuarioRepositorio.save(usuario);
+				adicionadorLinkUsuario.adicionarLink(usuario);
 			}
 		}
 		repositorio.delete(documento);

@@ -10,10 +10,9 @@ import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import com.autobots.automanager.repositorios.VeiculoRepositorio;
 import com.autobots.automanager.repositorios.VendaRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -52,6 +51,7 @@ public class VeiculoControle {
 	@Autowired
 	private AdicionadorLinkServico adicionadorLinkServico;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public Veiculo obterVeiculo(@PathVariable Long id) {
 		Veiculo veiculo = veiculoRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -59,6 +59,7 @@ public class VeiculoControle {
 		return veiculo;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<Veiculo> obterVeiculos() {
 		List<Veiculo> veiculos = veiculoRepositorio.findAll();
@@ -73,6 +74,7 @@ public class VeiculoControle {
 		return veiculos;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/{idVenda}/{idUsuario}")
 	public ResponseEntity<Veiculo> cadastrarVeiculoVenda(@RequestBody VeiculoDto veiculoDto, @PathVariable Long idVenda, @PathVariable Long idUsuario) {
 		Venda venda = vendaRepositorio.findById(idVenda)
@@ -87,6 +89,7 @@ public class VeiculoControle {
 		return new ResponseEntity<Veiculo>(veiculo, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{idVeiculo}")
 	public ResponseEntity<VeiculoDto> atualizarVeiculo(@RequestBody VeiculoDto veiculoDto, @PathVariable Long idVeiculo) {
 		Veiculo veiculoExistente = veiculoRepositorio.findById(idVeiculo)
@@ -122,6 +125,7 @@ public class VeiculoControle {
 		return ResponseEntity.ok(veiculoAtualizadoDto);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Veiculo> excluirVeiculo(@PathVariable Long id) {
 		Veiculo veiculo = veiculoRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

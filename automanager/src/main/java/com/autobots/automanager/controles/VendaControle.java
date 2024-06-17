@@ -9,6 +9,7 @@ import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,11 +41,14 @@ public class VendaControle {
 	
 	@Autowired
 	private AdicionadorLinkVenda adicionadorLink;
+	
 	@Autowired
 	private AdicionadorLinkServico adicionadorLinkServico;
+	
 	@Autowired
 	private AdicionadorLinkMercadoria adicionadorLinkMercadoria;
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@GetMapping("/{id}")
 	public Venda obterVenda(@PathVariable Long id) {
 		Venda venda = vendaRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -52,6 +56,7 @@ public class VendaControle {
 		return venda;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@GetMapping
 	public List<Venda> obterVendas() {
 		List<Venda> vendas = vendaRepositorio.findAll();
@@ -63,6 +68,7 @@ public class VendaControle {
 		return vendas;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
 	public ResponseEntity<Venda> cadastrarVendaEmpresa(@RequestBody VendaDto vendaDto, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.findById(idEmpresa)
@@ -73,6 +79,7 @@ public class VendaControle {
 		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PostMapping("/cadastro/{idCliente}/{idFuncionario}")
 	public ResponseEntity<Venda> cadastrarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long idCliente, @PathVariable Long idFuncionario) {
 		Usuario cliente = usuarioRepositorio.findById(idCliente)
@@ -88,6 +95,7 @@ public class VendaControle {
 		return new ResponseEntity<Venda>(venda,HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Venda> atualizarVenda(@RequestBody VendaDto vendaDto, @PathVariable Long id) {
 		Venda vendaExistente = vendaRepositorio.findById(id)
@@ -117,7 +125,8 @@ public class VendaControle {
 		vendaRepositorio.save(vendaExistente);
 		return new ResponseEntity<Venda>(vendaExistente,HttpStatus.OK);
 	}
-
+	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Venda> excluirVenda(@PathVariable Long id) {
 		Venda venda = vendaRepositorio.findById(id)
@@ -126,7 +135,7 @@ public class VendaControle {
 		for(Empresa e : empresas){
 			if(e.getVendas().contains(venda)){
 				e.getVendas().remove(venda);
-                empresaRepositorio.save(e);
+				empresaRepositorio.save(e);
 			}
 		}
 		vendaRepositorio.delete(venda);

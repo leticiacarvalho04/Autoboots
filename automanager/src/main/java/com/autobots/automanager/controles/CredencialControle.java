@@ -5,7 +5,6 @@ import com.autobots.automanager.entidades.Credencial;
 import com.autobots.automanager.entidades.CredencialCodigoBarra;
 import com.autobots.automanager.entidades.CredencialUsuarioSenha;
 import com.autobots.automanager.entidades.Usuario;
-import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkCredencial;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkCredencialCodigo;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkCredencialSenha;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
@@ -16,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,7 +35,7 @@ public class CredencialControle {
 	public CredencialSelecionador selecionador;
 	
 	@Autowired
-	public AdicionadorLinkCredencial adicionadorLink;
+	public com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkCredencial adicionadorLink;
 	
 	@Autowired
 	private UsuarioRepositorio usuarioRepositorio;
@@ -51,6 +52,7 @@ public class CredencialControle {
 	@Autowired
 	private AdicionadorLinkCredencialCodigo adicionadorLinkCredencialCodigo;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Credencial> obterCredencial(@PathVariable Long id) {
 		Credencial credencial = repositorio.findById(id)
@@ -65,6 +67,7 @@ public class CredencialControle {
 		return ResponseEntity.ok(credencial);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<EntityModel<Credencial>> obterCredenciais() {
 		List<Credencial> credenciais = repositorio.findAll();
@@ -76,15 +79,20 @@ public class CredencialControle {
 				.collect(Collectors.toList());
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/{idUsuario}")
-	public ResponseEntity<CredencialDto> cadastrarCredencial(@RequestBody CredencialDto credencialDto, @PathVariable Long idUsuario) {
-		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+	public ResponseEntity<Credencial> cadastrarCredencial(@RequestBody CredencialDto credencialDto, @PathVariable Long idUsuario) {
+		Usuario usuario = usuarioRepositorio.findById(idUsuario)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+		BCryptPasswordEncoder codificador = new BCryptPasswordEncoder();
 		
 		Credencial novaCredencial;
 		if (credencialDto.getCodigo() != null && credencialDto.getNomeUsuario() == null && credencialDto.getSenha() == null) {
 			novaCredencial = credencialDto.toEntityCodigoBarra();
 		} else if (credencialDto.getNomeUsuario() != null && credencialDto.getSenha() != null && credencialDto.getCodigo() == null) {
-			novaCredencial = credencialDto.toEntityUsuarioSenha();
+			CredencialUsuarioSenha credencialUsuarioSenha = credencialDto.toEntityUsuarioSenha();
+			credencialUsuarioSenha.setSenha(codificador.encode(credencialDto.getSenha()));
+			novaCredencial = credencialUsuarioSenha;
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Formato de credencial inválido");
 		}
@@ -104,15 +112,16 @@ public class CredencialControle {
 		responseDto.setInativo(novaCredencial.isInativo());
 		
 		if (novaCredencial instanceof CredencialCodigoBarra) {
-			responseDto.setCodigo(Long.valueOf(String.valueOf(((CredencialCodigoBarra) novaCredencial).getCodigo())));
+			responseDto.setCodigo(((CredencialCodigoBarra) novaCredencial).getCodigo());
 		} else if (novaCredencial instanceof CredencialUsuarioSenha) {
 			responseDto.setNomeUsuario(((CredencialUsuarioSenha) novaCredencial).getNomeUsuario());
-			responseDto.setSenha(((CredencialUsuarioSenha) novaCredencial).getSenha());
+			responseDto.setSenha(null);
 		}
 		
-		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+		return new ResponseEntity<>(novaCredencial, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{idCredencial}/{idUsuario}")
 	public ResponseEntity<CredencialDto> atualizarCredencial(@RequestBody CredencialDto credencialAtualizada, @PathVariable Long idCredencial, @PathVariable Long idUsuario) {
 		Credencial credencialExistente = repositorio.findById(idCredencial)
@@ -142,6 +151,7 @@ public class CredencialControle {
 		return new ResponseEntity<>(credencialAtualizada, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Void> excluirCredencial(@PathVariable Long id) {
 		Credencial credencial = repositorio.findById(id)

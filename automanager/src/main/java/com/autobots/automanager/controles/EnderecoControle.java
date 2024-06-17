@@ -6,13 +6,13 @@ import com.autobots.automanager.entidades.Usuario;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEmpresa;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkEndereco;
 import com.autobots.automanager.modelo.adicionadorLink.AdicionadorLinkUsuario;
-import com.autobots.automanager.modelo.atualizadores.EnderecoAtualizador;
 import com.autobots.automanager.repositorios.EmpresaRepositorio;
 import com.autobots.automanager.repositorios.EnderecoRepositorio;
 import com.autobots.automanager.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/endereco")
 public class EnderecoControle {
-
+	
 	@Autowired
 	public EnderecoRepositorio repositorio;
 	
@@ -40,6 +40,7 @@ public class EnderecoControle {
 	@Autowired
 	private AdicionadorLinkEmpresa adicionadorLinkEmpresa;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Endereco> cadastrarEndereco(@RequestBody Endereco endereco, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -49,8 +50,9 @@ public class EnderecoControle {
 		return new ResponseEntity<>(endereco, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
-	public ResponseEntity<Endereco>  cadastrarEnderecoEmpresa(@RequestBody Endereco endereco, @PathVariable Long idEmpresa) {
+	public ResponseEntity<Endereco> cadastrarEnderecoEmpresa(@RequestBody Endereco endereco, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.findById(idEmpresa).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));;
 		endereco = repositorio.save(endereco);
 		empresa.setEndereco(endereco);
@@ -59,14 +61,16 @@ public class EnderecoControle {
 		return new ResponseEntity<>(endereco, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Endereco> obterEndereco(@PathVariable Long id) {
-        Endereco endereco = repositorio.findById(id)
-		        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        adicionadorLink.adicionarLink(endereco);
-        return new ResponseEntity<>(endereco, HttpStatus.OK);
-    }
+		Endereco endereco = repositorio.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		adicionadorLink.adicionarLink(endereco);
+		return new ResponseEntity<>(endereco, HttpStatus.OK);
+	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<Endereco> obterEnderecos(){
 		List<Endereco> enderecos = repositorio.findAll();
@@ -74,6 +78,7 @@ public class EnderecoControle {
 		return enderecos;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Endereco> atualizarEndereco(@RequestBody Endereco e, @PathVariable Long id) {
 		Endereco endereco = repositorio.findById(id)
@@ -89,15 +94,16 @@ public class EnderecoControle {
 		return ResponseEntity.ok().build();
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Endereco> excluirEndereco(@PathVariable long id) {
 		Endereco endereco = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		List<Empresa> empresas = empresaRepositorio.findAll();
 		for(Empresa e : empresas){
 			if(e.getEndereco().getId().equals(endereco.getId())){
-                e.setEndereco(null);
-                empresaRepositorio.save(e);
-            }
+				e.setEndereco(null);
+				empresaRepositorio.save(e);
+			}
 		}
 		repositorio.delete(endereco);
 		return new ResponseEntity<>(endereco, HttpStatus.OK);

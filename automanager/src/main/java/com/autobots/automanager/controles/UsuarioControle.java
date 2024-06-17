@@ -2,19 +2,17 @@ package com.autobots.automanager.controles;
 
 import com.autobots.automanager.dto.UsuarioDto;
 import com.autobots.automanager.entidades.*;
-import com.autobots.automanager.enumeracoes.PerfilUsuario;
+import com.autobots.automanager.enumeracoes.Perfil;
 import com.autobots.automanager.modelo.adicionadorLink.*;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -53,21 +51,46 @@ public class UsuarioControle {
 	
 	@Autowired
 	public EmpresaRepositorio empresaRepositorio;
+	
 	@Autowired
 	private AdicionadorLinkCredencial adicionadorLinkCredencial;
+	
 	@Autowired
 	private AdicionadorLinkEmail adicionadorLinkEmail;
+	
 	@Autowired
 	private AdicionadorLinkVenda adicionadorLinkVenda;
+	
 	@Autowired
 	private AdicionadorLinkMercadoria adicionadorLinkMercadoria;
+	
 	@Autowired
 	private AdicionadorLinkVeiculo adicionadorLinkVeiculo;
+	
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
+	
 	@Autowired
 	private AdicionadorLinkEndereco adicionadorLinkEndereco;
 	
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+	@PostMapping("/cadastro")
+	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
+		try {
+			List<Perfil> perfis = usuarioDto.getPerfis().stream()
+					.map(perfil -> Perfil.valueOf(String.valueOf(perfil)))
+					.collect(Collectors.toList());
+			Usuario usuario = usuarioDto.toEntity(perfis);
+			Usuario usuarioSalvo = repositorio.save(usuario);
+			return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
+		} catch (IllegalArgumentException e) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@GetMapping("/{id}")
 	public Usuario obterUsuario(@PathVariable Long id) {
 		Usuario usuario = repositorio.findById(id)
@@ -76,6 +99,7 @@ public class UsuarioControle {
 		return usuario;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@GetMapping
 	public List<Usuario> obterUsuarios() {
 		List<Usuario> usuarios = repositorio.findAll();
@@ -93,22 +117,7 @@ public class UsuarioControle {
 		return usuarios;
 	}
 	
-	@PostMapping("/cadastro")
-	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
-		try {
-			List<PerfilUsuario> perfis = usuarioDto.getPerfis().stream()
-					.map(perfil -> PerfilUsuario.valueOf(String.valueOf(perfil)))
-					.collect(Collectors.toList());
-			Usuario usuario = usuarioDto.toEntity(perfis);
-			Usuario usuarioSalvo = repositorio.save(usuario);
-			return ResponseEntity.status(HttpStatus.CREATED).body(usuarioSalvo);
-		} catch (IllegalArgumentException e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<UsuarioDto> atualizarUsuario(@RequestBody UsuarioDto usuarioDto, @PathVariable Long id) {
 		Usuario usuarioExistente = repositorio.findById(id)
@@ -132,6 +141,7 @@ public class UsuarioControle {
 		return new ResponseEntity<>(usuarioDto, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Usuario> excluirUsuario(@PathVariable Long id) {
 		Usuario usuario = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -139,7 +149,7 @@ public class UsuarioControle {
 		for(Empresa e : empresas){
 			if(e.getUsuarios().contains(usuario)){
 				e.getUsuarios().remove(usuario);
-                empresaRepositorio.save(e);
+				empresaRepositorio.save(e);
 			}
 		}
 		repositorio.delete(usuario);

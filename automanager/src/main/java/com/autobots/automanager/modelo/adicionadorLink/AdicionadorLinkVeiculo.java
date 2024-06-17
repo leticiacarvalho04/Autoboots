@@ -23,7 +23,7 @@ public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 			veiculo.add(linkProprio);
 		}
 	}
-
+	
 	@Override
 	public void adicionarLink(Veiculo objeto){
 		Link linkProprio = WebMvcLinkBuilder
@@ -34,15 +34,15 @@ public class AdicionadorLinkVeiculo implements AdicionadorLink<Veiculo> {
 		objeto.add(linkProprio);
 		Link linkAtualizar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(VeiculoControle.class)
-                        .atualizarVeiculo(null, objeto.getId()))
-                .withRel("AtualizarVeiculo:");
+						.methodOn(VeiculoControle.class)
+						.atualizarVeiculo(null, objeto.getId()))
+				.withRel("AtualizarVeiculo:");
 		objeto.add(linkAtualizar);
-        Link linkDeletar = WebMvcLinkBuilder
-		            .linkTo(WebMvcLinkBuilder
-                            .methodOn(VeiculoControle.class)
-                            .excluirVeiculo(objeto.getId()))
-                    .withRel("DeletarVeiculo:");
-        objeto.add(linkDeletar);
+		Link linkDeletar = WebMvcLinkBuilder
+				.linkTo(WebMvcLinkBuilder
+						.methodOn(VeiculoControle.class)
+						.excluirVeiculo(objeto.getId()))
+				.withRel("DeletarVeiculo:");
+		objeto.add(linkDeletar);
 	}
 }

@@ -38,9 +38,9 @@ public class AdicionadorLinkEmpresa implements AdicionadorLink<Empresa> {
 				.withRel("deletarEmpresa");
 		Link linkAtualizar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(EmpresaControle.class)
-                        .atualizarEmpresa(null, id))
-                .withRel("atualizarEmpresa");
+						.methodOn(EmpresaControle.class)
+						.atualizarEmpresa(null, id))
+				.withRel("atualizarEmpresa");
 		
 		objeto.add(linkDel);
 		objeto.add(linkLista);

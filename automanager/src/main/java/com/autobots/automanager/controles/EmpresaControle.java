@@ -3,11 +3,11 @@ package com.autobots.automanager.controles;
 import com.autobots.automanager.dto.EmpresaDto;
 import com.autobots.automanager.entidades.*;
 import com.autobots.automanager.modelo.adicionadorLink.*;
-import com.autobots.automanager.modelo.atualizadores.EmpresaAtualizadora;
 import com.autobots.automanager.repositorios.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -76,6 +76,7 @@ public class EmpresaControle {
 	@Autowired
 	private AdicionadorLinkVeiculo adicionadorLinkVeiculo;
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping("/{id}")
 	public Empresa obterEmpresa(@PathVariable Long id) {
 		Empresa empresa = empresaRepositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -83,6 +84,7 @@ public class EmpresaControle {
 		return empresa;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@GetMapping
 	public List<Empresa> obterEmpresas() {
 		List<Empresa> empresas = empresaRepositorio.findAll();
@@ -109,6 +111,7 @@ public class EmpresaControle {
 		return empresas;
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PostMapping("/cadastro")
 	public ResponseEntity<Empresa> cadastrarEmpresa(@RequestBody EmpresaDto empresaDto) {
 		Empresa empresa = empresaDto.cadastro();
@@ -116,6 +119,7 @@ public class EmpresaControle {
 		return new ResponseEntity<Empresa>(empresa, HttpStatus.CREATED);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Empresa> atualizarEmpresa(@RequestBody EmpresaDto empresaDto, @PathVariable Long id) {
 		Empresa empresaExistente = empresaRepositorio.findById(id)
@@ -137,9 +141,11 @@ public class EmpresaControle {
 		empresaDto.updateEntity(empresaExistente, telefonesAtualizados, endereco, usuarios, mercadorias, servicos, vendas);
 		
 		empresaRepositorio.save(empresaExistente);
+		
 		return new ResponseEntity<>(empresaExistente, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Empresa> excluirEmpresa(@PathVariable Long id) {
 		Empresa empresa = empresaRepositorio.findById(id)

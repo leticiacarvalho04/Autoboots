@@ -10,6 +10,6 @@ import javax.persistence.Entity;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 public class CredencialCodigoBarra extends Credencial{
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	private long codigo;
 }

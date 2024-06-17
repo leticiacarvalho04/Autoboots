@@ -35,15 +35,15 @@ public class AdicionadorLinkUsuario implements AdicionadorLink<Usuario> {
 		objeto.add(linkProprio);
 		Link linkAtualizar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(UsuarioControle.class)
-                        .atualizarUsuario(null, id))
-                .withRel("AtualizarUsuario:");
-        objeto.add(linkAtualizar);
+						.methodOn(UsuarioControle.class)
+						.atualizarUsuario(null, id))
+				.withRel("AtualizarUsuario:");
+		objeto.add(linkAtualizar);
 		Link linkDeletar = WebMvcLinkBuilder
 				.linkTo(WebMvcLinkBuilder
-                        .methodOn(UsuarioControle.class)
-                        .excluirUsuario(id))
-                .withRel("DeletarUsuario:");
-        objeto.add(linkDeletar);
+						.methodOn(UsuarioControle.class)
+						.excluirUsuario(id))
+				.withRel("DeletarUsuario:");
+		objeto.add(linkDeletar);
 	}
 }

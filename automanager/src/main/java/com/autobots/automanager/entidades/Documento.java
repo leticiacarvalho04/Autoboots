@@ -1,20 +1,15 @@
 package com.autobots.automanager.entidades;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
 import com.autobots.automanager.enumeracoes.TipoDocumento;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.hateoas.RepresentationModel;
 
+import javax.persistence.*;
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @Entity
 public class Documento extends RepresentationModel<Documento> {
 	@Id

@@ -2,7 +2,6 @@ package com.autobots.automanager.entidades;
 
 import com.autobots.automanager.enumeracoes.TipoVeiculo;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
