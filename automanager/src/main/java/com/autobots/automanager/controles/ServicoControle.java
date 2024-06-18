@@ -81,7 +81,7 @@ public class ServicoControle {
 		return new ResponseEntity<Servico>(servico, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Servico> atualizarServico(@RequestBody Servico servico, @PathVariable Long id) {
 		Servico servicoExistente = repositorio.findById(id)

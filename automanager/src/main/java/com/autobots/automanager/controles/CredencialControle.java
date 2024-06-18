@@ -52,7 +52,7 @@ public class CredencialControle {
 	@Autowired
 	private AdicionadorLinkCredencialCodigo adicionadorLinkCredencialCodigo;
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Credencial> obterCredencial(@PathVariable Long id) {
 		Credencial credencial = repositorio.findById(id)
@@ -67,7 +67,7 @@ public class CredencialControle {
 		return ResponseEntity.ok(credencial);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping
 	public List<EntityModel<Credencial>> obterCredenciais() {
 		List<Credencial> credenciais = repositorio.findAll();
@@ -79,7 +79,7 @@ public class CredencialControle {
 				.collect(Collectors.toList());
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE','VENDEDOR')")
 	@PostMapping("/cadastro/{idUsuario}")
 	public ResponseEntity<Credencial> cadastrarCredencial(@RequestBody CredencialDto credencialDto, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario)
@@ -121,7 +121,7 @@ public class CredencialControle {
 		return new ResponseEntity<>(novaCredencial, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE','VENDEDOR')")
 	@PutMapping("/atualizar/{idCredencial}/{idUsuario}")
 	public ResponseEntity<CredencialDto> atualizarCredencial(@RequestBody CredencialDto credencialAtualizada, @PathVariable Long idCredencial, @PathVariable Long idUsuario) {
 		Credencial credencialExistente = repositorio.findById(idCredencial)
@@ -151,7 +151,7 @@ public class CredencialControle {
 		return new ResponseEntity<>(credencialAtualizada, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE','VENDEDOR')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Void> excluirCredencial(@PathVariable Long id) {
 		Credencial credencial = repositorio.findById(id)

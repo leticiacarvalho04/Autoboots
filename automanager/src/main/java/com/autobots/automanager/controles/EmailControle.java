@@ -35,7 +35,7 @@ public class EmailControle {
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Email> obterEmail(@PathVariable Long id) {
 		Email email = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -43,7 +43,7 @@ public class EmailControle {
 		return new ResponseEntity<>(email, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping
 	public List<Email> obterEmails(){
 		List<Email> emails = repositorio.findAll();
@@ -51,7 +51,7 @@ public class EmailControle {
 		return emails;
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PostMapping("/cadastro/{idUsuario}")
 	public ResponseEntity<Email> cadastrarEmail(@RequestBody Email email, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -61,7 +61,7 @@ public class EmailControle {
 		return new ResponseEntity<>(email, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PutMapping("/atualizar/{idEmail}")
 	public ResponseEntity<Email> atualizarEmail(@RequestBody Email email, @PathVariable Long idEmail) {
 		Email emailAtual = repositorio.findById(idEmail)
@@ -71,7 +71,7 @@ public class EmailControle {
 		return ResponseEntity.ok().build();
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Email> excluirEmail(@PathVariable Long id) {
 		Email email = repositorio.findById(id)

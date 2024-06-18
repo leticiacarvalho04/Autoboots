@@ -32,7 +32,7 @@ public class DocumentoControle {
 	@Autowired
 	private AdicionadorLinkUsuario adicionadorLinkUsuario;
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Documento> cadastrarDocumentoUsuario(@RequestBody Documento documento, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
@@ -42,7 +42,7 @@ public class DocumentoControle {
 		return new ResponseEntity<>(documentoSalvo, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Documento> obterDocumento(@PathVariable Long id) {
 		Documento documento = repositorio.findById(id)
@@ -51,6 +51,7 @@ public class DocumentoControle {
 		return new ResponseEntity<>(documento, HttpStatus.OK);
 	}
 	
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@GetMapping
 	public List<Documento> obterDocumentos(){
 		List<Documento> documentos = repositorio.findAll();
@@ -58,7 +59,7 @@ public class DocumentoControle {
 		return documentos;
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PutMapping("/atualizar/{idUsuario}")
 	public ResponseEntity<Documento> atualizarDocumento(@RequestBody Documento doc, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario)
@@ -76,7 +77,7 @@ public class DocumentoControle {
 		return new ResponseEntity<>(documentoExistente,HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Documento> excluirDocumento(@PathVariable Long id) {
 		Documento documento = repositorio.getById(id);

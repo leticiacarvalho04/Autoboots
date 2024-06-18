@@ -73,7 +73,7 @@ public class UsuarioControle {
 	@Autowired
 	private AdicionadorLinkEndereco adicionadorLinkEndereco;
 	
-	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PostMapping("/cadastro")
 	public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody UsuarioDto usuarioDto) {
 		try {
@@ -90,7 +90,7 @@ public class UsuarioControle {
 		}
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping("/{id}")
 	public Usuario obterUsuario(@PathVariable Long id) {
 		Usuario usuario = repositorio.findById(id)
@@ -99,7 +99,7 @@ public class UsuarioControle {
 		return usuario;
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping
 	public List<Usuario> obterUsuarios() {
 		List<Usuario> usuarios = repositorio.findAll();
@@ -117,7 +117,7 @@ public class UsuarioControle {
 		return usuarios;
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR', 'CLIENTE')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<UsuarioDto> atualizarUsuario(@RequestBody UsuarioDto usuarioDto, @PathVariable Long id) {
 		Usuario usuarioExistente = repositorio.findById(id)
@@ -141,7 +141,7 @@ public class UsuarioControle {
 		return new ResponseEntity<>(usuarioDto, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN','GERENTE')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Usuario> excluirUsuario(@PathVariable Long id) {
 		Usuario usuario = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

@@ -40,7 +40,7 @@ public class EnderecoControle {
 	@Autowired
 	private AdicionadorLinkEmpresa adicionadorLinkEmpresa;
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PostMapping("/cadastro/usuario/{idUsuario}")
 	public ResponseEntity<Endereco> cadastrarEndereco(@RequestBody Endereco endereco, @PathVariable Long idUsuario) {
 		Usuario usuario = usuarioRepositorio.findById(idUsuario).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -50,7 +50,7 @@ public class EnderecoControle {
 		return new ResponseEntity<>(endereco, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PostMapping("/cadastro/empresa/{idEmpresa}")
 	public ResponseEntity<Endereco> cadastrarEnderecoEmpresa(@RequestBody Endereco endereco, @PathVariable Long idEmpresa) {
 		Empresa empresa = empresaRepositorio.findById(idEmpresa).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));;
@@ -61,7 +61,7 @@ public class EnderecoControle {
 		return new ResponseEntity<>(endereco, HttpStatus.CREATED);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping("/{id}")
 	public ResponseEntity<Endereco> obterEndereco(@PathVariable Long id) {
 		Endereco endereco = repositorio.findById(id)
@@ -70,7 +70,7 @@ public class EnderecoControle {
 		return new ResponseEntity<>(endereco, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@GetMapping
 	public List<Endereco> obterEnderecos(){
 		List<Endereco> enderecos = repositorio.findAll();
@@ -78,7 +78,7 @@ public class EnderecoControle {
 		return enderecos;
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<Endereco> atualizarEndereco(@RequestBody Endereco e, @PathVariable Long id) {
 		Endereco endereco = repositorio.findById(id)
@@ -94,7 +94,7 @@ public class EnderecoControle {
 		return ResponseEntity.ok().build();
 	}
 	
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN', 'GERENTE', 'VENDEDOR')")
 	@DeleteMapping("/excluir/{id}")
 	public ResponseEntity<Endereco> excluirEndereco(@PathVariable long id) {
 		Endereco endereco = repositorio.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
